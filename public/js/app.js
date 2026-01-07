@@ -44,7 +44,7 @@ const UserPayClient = (function(){
   }
 
   async function login(email, password){
-    const res = await client.post('/api/auth/login', { email, password });
+    const res = await client.post('/auth/login', { email, password });
     const token = res?.data?.token || res?.data?.accessToken || null;
     if(!token) throw new Error('No token returned from server');
     setToken(token);
@@ -52,12 +52,12 @@ const UserPayClient = (function(){
   }
 
   async function register(email, password){
-    await client.post('/api/auth/register', { email, password });
+    await client.post('/auth/register', { email, password });
     return true;
   }
 
   async function resendVerification(email){
-    await client.post('/api/auth/resend-verification', { email });
+    await client.post('/auth/resend-verification', { email });
     return true;
   }
 
@@ -68,10 +68,10 @@ const UserPayClient = (function(){
 
   async function getProfile(){
     try{
-      const res = await client.get('/api/auth/me');
+      const res = await client.get('/auth/me');
       return res.data;
     }catch(e){
-      try{ const r2 = await client.get('/api/users/me'); return r2.data; }catch(_){ return null; }
+      try{ const r2 = await client.get('/users/me'); return r2.data; }catch(_){ return null; }
     }
   }
 
