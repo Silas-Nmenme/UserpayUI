@@ -28,6 +28,11 @@
             backdrop-filter: blur(10px);
             box-shadow: var(--shadow-light);
             transition: all 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
         }
 
         .navbar-brand {
@@ -43,6 +48,7 @@
             position: relative;
             overflow: hidden;
             background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            margin-top: 80px;
         }
 
         .hero::before {

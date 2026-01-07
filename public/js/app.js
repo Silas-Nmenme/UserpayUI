@@ -56,6 +56,11 @@ const UserPayClient = (function(){
     return true;
   }
 
+  async function resendVerification(email){
+    await client.post('/api/auth/resend-verification', { email });
+    return true;
+  }
+
   function logout(){
     setToken(null);
     window.location.href = 'index.html';
@@ -178,7 +183,7 @@ const UserPayClient = (function(){
   }
 
   return {
-    init, login, register, logout, getProfile, getBalance, getTransactions, sendMoney, refreshUI, setToken
+    init, login, register, resendVerification, logout, getProfile, getBalance, getTransactions, sendMoney, refreshUI, setToken
   };
 })();
 
