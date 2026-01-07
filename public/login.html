@@ -299,7 +299,7 @@
             const password = document.getElementById('login-password').value;
             try{
                 await UserPayClient.login(email, password);
-                window.location.href = 'index.html';
+                window.location.href = 'dashboard.html';
             }catch(err){
                 alert(err?.message || 'Login failed. Please check your credentials.');
             }

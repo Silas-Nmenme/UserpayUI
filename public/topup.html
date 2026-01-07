@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Up Balance - UserPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand: #6a11cb;
+            --brand-light: #2575fc;
+            --gradient-primary: linear-gradient(135deg, var(--brand), var(--brand-light));
+            --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 20px rgba(0,0,0,0.15);
+            --shadow-heavy: 0 8px 30px rgba(0,0,0,0.2);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255,255,255,0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .topup-hero {
+            padding: 6rem 0 4rem;
+            margin-top: 80px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+        }
+
+        .card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            box-shadow: var(--shadow-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn {
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.75rem 2rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-outline-primary {
+            border-color: var(--brand);
+            color: var(--brand);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            color: white;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        footer {
+            background: rgba(255,255,255,0.9);
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        .topup-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .balance-display {
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .balance-amount {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .amount-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .amount-btn {
+            flex: 1;
+            min-width: 80px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">UserPay</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="nav">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item me-3"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+                    <li class="nav-item me-3"><a class="nav-link" href="transfer.html">Transfer</a></li>
+                    <li class="nav-item me-3"><a class="nav-link" href="history.html">History</a></li>
+                    <li class="nav-item"><button class="btn btn-outline-primary me-2" id="refresh-btn">Refresh</button></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="topup-hero">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="display-4 fw-bold reveal">Top Up Your Balance</h1>
+                    <p class="lead text-muted reveal">Add funds to your UserPay wallet instantly. Choose from preset amounts or enter a custom amount.</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="balance-display reveal">
+                <h4>Current Balance</h4>
+                <div class="balance-amount" id="current-balance">$0.00</div>
+            </div>
+
+            <div class="card p-5 topup-form reveal">
+                <h2 class="text-center mb-4">Add Funds</h2>
+                <form id="topup-form">
+                    <div class="mb-3">
+                        <label class="form-label">Quick Amounts</label>
+                        <div class="amount-buttons">
+                            <button type="button" class="btn btn-outline-primary amount-btn" data-amount="10">$10</button>
+                            <button type="button" class="btn btn-outline-primary amount-btn" data-amount="25">$25</button>
+                            <button type="button" class="btn btn-outline-primary amount-btn" data-amount="50">$50</button>
+                            <button type="button" class="btn btn-outline-primary amount-btn" data-amount="100">$100</button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Custom Amount ($)</label>
+                        <input type="number" class="form-control" id="topup-amount" placeholder="Enter amount" min="0.01" step="0.01" required>
+                        <div class="form-text">Minimum top-up: $0.01</div>
+                    </div>
+                    <div class="d-grid">
+                        <button class="btn btn-primary" type="submit">Top Up Balance</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-md-4">
+                    <div class="card p-4 text-center reveal">
+                        <i class="fas fa-credit-card fa-3x text-primary mb-3"></i>
+                        <h5>Multiple Payment Methods</h5>
+                        <p>Pay with credit card, debit card, or bank transfer</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 text-center reveal">
+                        <i class="fas fa-clock fa-3x text-primary mb-3"></i>
+                        <h5>Instant Deposit</h5>
+                        <p>Funds appear in your account immediately</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 text-center reveal">
+                        <i class="fas fa-lock fa-3x text-primary mb-3"></i>
+                        <h5>Secure Transactions</h5>
+                        <p>Your payment information is fully encrypted</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container d-flex justify-content-between align-items-center py-4">
+            <div class="text-muted">© 2023 UserPay. All rights reserved.</div>
+            <div>
+                <a href="#" class="text-muted me-3">Terms of Service</a>
+                <a href="#" class="text-muted me-3">Privacy Policy</a>
+                <a href="#" class="text-muted">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.5.0/dist/axios.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Initialize UserPay client
+        UserPayClient.init();
+
+        // Load balance on page load
+        async function loadBalance() {
+            try {
+                const balance = await UserPayClient.getBalance();
+                document.getElementById('current-balance').textContent = `$${Number(balance).toFixed(2)}`;
+            } catch (err) {
+                console.error('Failed to load balance:', err);
+            }
+        }
+
+        loadBalance();
+
+        // Handle quick amount buttons
+        document.querySelectorAll('.amount-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const amount = btn.getAttribute('data-amount');
+                document.getElementById('topup-amount').value = amount;
+                // Remove active class from all buttons
+                document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+            });
+        });
+
+        // Handle topup form
+        document.getElementById('topup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const amount = Number(document.getElementById('topup-amount').value);
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            try {
+                await UserPayClient.topup(amount);
+                alert('Top-up successful!');
+                document.getElementById('topup-form').reset();
+                loadBalance(); // Refresh balance
+                // Remove active class from buttons
+                document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+            } catch (err) {
+                alert(err?.response?.data?.message || err?.message || 'Top-up failed. Please try again.');
+            }
+        });
+
+        // Refresh button
+        document.getElementById('refresh-btn').addEventListener('click', () => {
+            loadBalance();
+        });
+
+        // Reveal animations
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(reveal => {
+                const windowHeight = window.innerHeight;
+                const elementTop = reveal.getBoundingClientRect().top;
+                const elementVisible = 150;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('visible');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealOnScroll);
+        window.addEventListener('load', revealOnScroll);
+    </script>
+</body>
+</html>

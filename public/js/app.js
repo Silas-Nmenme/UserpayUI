@@ -104,6 +104,15 @@ const UserPayClient = (function(){
     }
   }
 
+  async function topup(amount){
+    if(!amount || amount <= 0) throw new Error('Amount must be greater than zero');
+    try{
+      return (await client.post('/api/wallet/topup', { amount })).data;
+    }catch(err){
+      try{ return (await client.post('/api/topup', { amount })).data; }catch(e){ throw err; }
+    }
+  }
+
   async function refreshUI(){
     const profile = await getProfile();
     const isLoggedIn = !!profile;
@@ -183,7 +192,7 @@ const UserPayClient = (function(){
   }
 
   return {
-    init, login, register, resendVerification, logout, getProfile, getBalance, getTransactions, sendMoney, refreshUI, setToken
+    init, login, register, resendVerification, logout, getProfile, getBalance, getTransactions, sendMoney, topup, refreshUI, setToken
   };
 })();
 

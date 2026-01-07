@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - UserPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand: #6a11cb;
+            --brand-light: #2575fc;
+            --gradient-primary: linear-gradient(135deg, var(--brand), var(--brand-light));
+            --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 20px rgba(0,0,0,0.15);
+            --shadow-heavy: 0 8px 30px rgba(0,0,0,0.2);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255,255,255,0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dashboard-hero {
+            padding: 6rem 0 4rem;
+            margin-top: 80px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+        }
+
+        .balance-card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            box-shadow: var(--shadow-medium);
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .balance-amount {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--brand);
+            margin: 1rem 0;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            box-shadow: var(--shadow-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn {
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.75rem 2rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-outline-primary {
+            border-color: var(--brand);
+            color: var(--brand);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            color: white;
+        }
+
+        .testimonials {
+            background: rgba(255,255,255,0.8);
+            padding: 4rem 0;
+            border-radius: 20px;
+            margin: 2rem 0;
+            box-shadow: var(--shadow-light);
+        }
+
+        .testimonial-card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow-light);
+            margin: 1rem 0;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        footer {
+            background: rgba(255,255,255,0.9);
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .quick-actions { flex-direction: column; align-items: center; }
+            .balance-amount { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">UserPay</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="nav">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item me-3"><a class="nav-link" href="transfer.html">Transfer</a></li>
+                    <li class="nav-item me-3"><a class="nav-link" href="topup.html">Top Up</a></li>
+                    <li class="nav-item me-3"><a class="nav-link" href="history.html">History</a></li>
+                    <li class="nav-item"><button class="btn btn-outline-primary me-2" id="refresh-btn">Refresh</button></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="dashboard-hero">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="display-4 fw-bold reveal">Your Wallet Dashboard</h1>
+                    <p class="lead text-muted reveal">Manage your finances effortlessly with UserPay. View your balance, send money, and track transactions all in one place.</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="balance-card reveal">
+                <h2>Current Balance</h2>
+                <div class="balance-amount" id="wallet-balance">$0.00</div>
+                <p class="text-muted">Available for transfers and payments</p>
+            </div>
+
+            <div class="quick-actions">
+                <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#sendModal">Send Money</button>
+                <button class="btn btn-outline-primary btn-lg" data-bs-toggle="modal" data-bs-target="#topupModal">Top Up Balance</button>
+                <a href="history.html" class="btn btn-outline-primary btn-lg">View History</a>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card p-4 reveal">
+                        <h3>Recent Transactions</h3>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tx-table">
+                                    <tr>
+                                        <td colspan="5" class="text-muted">Loading transactions...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="history.html" class="btn btn-outline-primary">View All Transactions</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card p-4 reveal">
+                        <h4>Quick Stats</h4>
+                        <div class="mb-3">
+                            <strong>Total Sent:</strong> <span id="total-sent">$0.00</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Total Received:</strong> <span id="total-received">$0.00</span>
+                        </div>
+                        <div>
+                            <strong>Transactions Count:</strong> <span id="tx-count">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonials">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>What Our Users Say</h2>
+                <p class="lead text-muted">Hear from real UserPay customers</p>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="testimonial-card reveal">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-user-circle fa-3x text-primary me-3"></i>
+                            <div>
+                                <h5>Sarah Johnson</h5>
+                                <small class="text-muted">Freelance Designer</small>
+                            </div>
+                        </div>
+                        <p>"UserPay has revolutionized how I handle payments. No more complicated bank transfers – just usernames and instant money!"</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial-card reveal">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-user-circle fa-3x text-primary me-3"></i>
+                            <div>
+                                <h5>Mike Chen</h5>
+                                <small class="text-muted">Small Business Owner</small>
+                            </div>
+                        </div>
+                        <p>"As a business owner, UserPay saves me hours every week. Splitting bills and collecting payments has never been easier."</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial-card reveal">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-user-circle fa-3x text-primary me-3"></i>
+                            <div>
+                                <h5>Emma Rodriguez</h5>
+                                <small class="text-muted">Student</small>
+                            </div>
+                        </div>
+                        <p>"Perfect for students! I can send money to roommates instantly without worrying about fees or delays."</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container d-flex justify-content-between align-items-center py-4">
+            <div class="text-muted">© 2023 UserPay. All rights reserved.</div>
+            <div>
+                <a href="#" class="text-muted me-3">Terms of Service</a>
+                <a href="#" class="text-muted me-3">Privacy Policy</a>
+                <a href="#" class="text-muted">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Send Money Modal -->
+    <div class="modal fade" id="sendModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Send Money</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="send-form">
+                        <div class="mb-3">
+                            <label class="form-label">Recipient Username</label>
+                            <input type="text" class="form-control" id="send-username" placeholder="Enter username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Amount ($)</label>
+                            <input type="number" class="form-control" id="send-amount" placeholder="0.00" min="0.01" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Note (Optional)</label>
+                            <input type="text" class="form-control" id="send-note" placeholder="Add a note">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Send Money</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Up Modal -->
+    <div class="modal fade" id="topupModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Top Up Balance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="topup-form">
+                        <div class="mb-3">
+                            <label class="form-label">Amount ($)</label>
+                            <input type="number" class="form-control" id="topup-amount" placeholder="0.00" min="0.01" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Top Up</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.5.0/dist/axios.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Initialize UserPay client and refresh UI
+        UserPayClient.init();
+        UserPayClient.refreshUI();
+
+        // Handle topup form
+        document.getElementById('topup-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const amount = Number(document.getElementById('topup-amount').value);
+            try {
+                await UserPayClient.topup(amount);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('topupModal'));
+                modal?.hide();
+                await UserPayClient.refreshUI();
+                alert('Top-up successful');
+            } catch (err) {
+                alert(err?.response?.data?.message || err?.message || 'Top-up failed');
+            }
+        });
+
+        // Reveal animations
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(reveal => {
+                const windowHeight = window.innerHeight;
+                const elementTop = reveal.getBoundingClientRect().top;
+                const elementVisible = 150;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('visible');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealOnScroll);
+        window.addEventListener('load', revealOnScroll);
+    </script>
+</body>
+</html>

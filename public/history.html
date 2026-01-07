@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction History - UserPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand: #6a11cb;
+            --brand-light: #2575fc;
+            --gradient-primary: linear-gradient(135deg, var(--brand), var(--brand-light));
+            --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 20px rgba(0,0,0,0.15);
+            --shadow-heavy: 0 8px 30px rgba(0,0,0,0.2);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255,255,255,0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .history-hero {
+            padding: 6rem 0 4rem;
+            margin-top: 80px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+        }
+
+        .card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            box-shadow: var(--shadow-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn {
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.75rem 2rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-outline-primary {
+            border-color: var(--brand);
+            color: var(--brand);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            color: white;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        footer {
+            background: rgba(255,255,255,0.9);
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        .transaction-item {
+            border-left: 4px solid var(--brand);
+            background: rgba(255,255,255,0.8);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-item:hover {
+            box-shadow: var(--shadow-light);
+            transform: translateX(5px);
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .amount-positive {
+            color: #28a745;
+        }
+
+        .amount-negative {
+            color: #dc3545;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .filter-btn {
+            border-radius: 20px;
+        }
+
+        .stats-card {
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .filter-buttons { justify-content: center; }
+            .transaction-item { margin-left: 0; margin-right: 0; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">UserPay</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="nav">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item me-3"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+                    <li class="nav-item me-3"><a class="nav-link" href="transfer.html">Transfer</a></li>
+                    <li class="nav-item me-3"><a class="nav-link" href="topup.html">Top Up</a></li>
+                    <li class="nav-item"><button class="btn btn-outline-primary me-2" id="refresh-btn">Refresh</button></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="history-hero">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="display-4 fw-bold reveal">Transaction History</h1>
+                    <p class="lead text-muted reveal">View all your UserPay transactions in one place. Filter by type and search for specific transactions.</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card reveal">
+                        <i class="fas fa-exchange-alt fa-2x mb-2"></i>
+                        <div class="stats-number" id="total-transactions">0</div>
+                        <div>Total Transactions</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card reveal">
+                        <i class="fas fa-arrow-up fa-2x mb-2"></i>
+                        <div class="stats-number" id="total-sent">$0.00</div>
+                        <div>Total Sent</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card reveal">
+                        <i class="fas fa-arrow-down fa-2x mb-2"></i>
+                        <div class="stats-number" id="total-received">$0.00</div>
+                        <div>Total Received</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card reveal">
+                        <i class="fas fa-wallet fa-2x mb-2"></i>
+                        <div class="stats-number" id="current-balance">$0.00</div>
+                        <div>Current Balance</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-4 reveal">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>All Transactions</h3>
+                    <div class="d-flex gap-2">
+                        <input type="text" class="form-control" id="search-input" placeholder="Search transactions...">
+                        <button class="btn btn-outline-primary" id="export-btn">Export</button>
+                    </div>
+                </div>
+
+                <div class="filter-buttons">
+                    <button class="btn btn-outline-primary filter-btn active" data-filter="all">All</button>
+                    <button class="btn btn-outline-primary filter-btn" data-filter="sent">Sent</button>
+                    <button class="btn btn-outline-primary filter-btn" data-filter="received">Received</button>
+                    <button class="btn btn-outline-primary filter-btn" data-filter="topup">Top-ups</button>
+                </div>
+
+                <div id="transactions-list">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Loading transactions...</p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button class="btn btn-outline-primary" id="load-more-btn" style="display: none;">Load More</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container d-flex justify-content-between align-items-center py-4">
+            <div class="text-muted">© 2023 UserPay. All rights reserved.</div>
+            <div>
+                <a href="#" class="text-muted me-3">Terms of Service</a>
+                <a href="#" class="text-muted me-3">Privacy Policy</a>
+                <a href="#" class="text-muted">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.5.0/dist/axios.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Initialize UserPay client
+        UserPayClient.init();
+
+        let allTransactions = [];
+        let filteredTransactions = [];
+        let currentFilter = 'all';
+
+        // Load transactions and stats
+        async function loadData() {
+            try {
+                const [balance, transactions] = await Promise.all([
+                    UserPayClient.getBalance(),
+                    UserPayClient.getTransactions()
+                ]);
+
+                document.getElementById('current-balance').textContent = `$${Number(balance).toFixed(2)}`;
+
+                allTransactions = transactions || [];
+                filteredTransactions = [...allTransactions];
+
+                updateStats();
+                renderTransactions();
+            } catch (err) {
+                console.error('Failed to load data:', err);
+                document.getElementById('transactions-list').innerHTML = '<div class="text-center py-5"><p class="text-muted">Failed to load transactions. Please try again.</p></div>';
+            }
+        }
+
+        function updateStats() {
+            const totalTx = allTransactions.length;
+            let totalSent = 0;
+            let totalReceived = 0;
+
+            allTransactions.forEach(tx => {
+                const amount = Number(tx.amount || 0);
+                if (tx.type === 'sent' || tx.kind === 'transfer_out') {
+                    totalSent += amount;
+                } else if (tx.type === 'received' || tx.kind === 'transfer_in' || tx.type === 'topup') {
+                    totalReceived += amount;
+                }
+            });
+
+            document.getElementById('total-transactions').textContent = totalTx;
+            document.getElementById('total-sent').textContent = `$${totalSent.toFixed(2)}`;
+            document.getElementById('total-received').textContent = `$${totalReceived.toFixed(2)}`;
+        }
+
+        function renderTransactions() {
+            const container = document.getElementById('transactions-list');
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+
+            let displayTransactions = filteredTransactions.filter(tx => {
+                if (!searchTerm) return true;
+                return (tx.ref || tx._id || '').toLowerCase().includes(searchTerm) ||
+                       (tx.type || tx.kind || '').toLowerCase().includes(searchTerm) ||
+                       (tx.note || '').toLowerCase().includes(searchTerm);
+            });
+
+            if (displayTransactions.length === 0) {
+                container.innerHTML = '<div class="text-center py-5"><p class="text-muted">No transactions found.</p></div>';
+                return;
+            }
+
+            container.innerHTML = displayTransactions.map(tx => {
+                const amount = Number(tx.amount || 0);
+                const isPositive = tx.type === 'received' || tx.kind === 'transfer_in' || tx.type === 'topup';
+                const amountClass = isPositive ? 'amount-positive' : 'amount-negative';
+                const amountSign = isPositive ? '+' : '-';
+                const date = tx.createdAt ? new Date(tx.createdAt).toLocaleDateString() : '—';
+                const time = tx.createdAt ? new Date(tx.createdAt).toLocaleTimeString() : '';
+
+                return `
+                    <div class="transaction-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="fw-bold">${tx.type || tx.kind || 'Transaction'}</div>
+                                <small class="text-muted">ID: ${tx.ref || tx._id || '—'}</small>
+                                ${tx.note ? `<br><small class="text-muted">Note: ${tx.note}</small>` : ''}
+                            </div>
+                            <div class="text-end">
+                                <div class="transaction-amount ${amountClass}">${amountSign}$${amount.toFixed(2)}</div>
+                                <small class="text-muted">${date} ${time}</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                currentFilter = btn.getAttribute('data-filter');
+
+                if (currentFilter === 'all') {
+                    filteredTransactions = [...allTransactions];
+                } else if (currentFilter === 'sent') {
+                    filteredTransactions = allTransactions.filter(tx => tx.type === 'sent' || tx.kind === 'transfer_out');
+                } else if (currentFilter === 'received') {
+                    filteredTransactions = allTransactions.filter(tx => tx.type === 'received' || tx.kind === 'transfer_in');
+                } else if (currentFilter === 'topup') {
+                    filteredTransactions = allTransactions.filter(tx => tx.type === 'topup');
+                }
+
+                renderTransactions();
+            });
+        });
+
+        // Search functionality
+        document.getElementById('search-input').addEventListener('input', renderTransactions);
+
+        // Refresh button
+        document.getElementById('refresh-btn').addEventListener('click', loadData);
+
+        // Export functionality (placeholder)
+        document.getElementById('export-btn').addEventListener('click', () => {
+            alert('Export functionality coming soon!');
+        });
+
+        // Load more button (placeholder)
+        document.getElementById('load-more-btn').addEventListener('click', () => {
+            alert('Load more functionality coming soon!');
+        });
+
+        // Reveal animations
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(reveal => {
+                const windowHeight = window.innerHeight;
+                const elementTop = reveal.getBoundingClientRect().top;
+                const elementVisible = 150;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('visible');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealOnScroll);
+        window.addEventListener('load', () => {
+            revealOnScroll();
+            loadData();
+        });
+    </script>
+</body>
+</html>
