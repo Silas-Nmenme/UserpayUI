@@ -1,0 +1,437 @@
+			</div>
+		</div>
+	</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/axios@1.5.0/dist/axios.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="js/app.js"></script>
+		<script>
+			window.addEventListener('load', async ()=>{
+				await UserPayClient.init();
+				UserPayClient.refreshUI();
+			});
+		</script>
+
+	</body>
+</html>
+				background: rgba(255,255,255,0.95);
+				-webkit-backdrop-filter: blur(10px);
+				backdrop-filter: blur(10px);
+				box-shadow: var(--shadow-light);
+				transition: all 0.3s ease;
+			}
+			.navbar-brand {
+				font-weight: 700;
+				background: var(--gradient-primary);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				background-clip: text;
+			}
+			.hero {
+				padding: 4rem 0;
+				position: relative;
+				overflow: hidden;
+			}
+			.hero::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+				pointer-events: none;
+			}
+			.card-balance {
+				background: var(--gradient-primary);
+				border: none;
+				border-radius: 15px;
+				box-shadow: var(--shadow-medium);
+				transition: transform 0.3s ease, box-shadow 0.3s ease;
+			}
+			.card-balance:hover {
+				transform: translateY(-5px);
+				box-shadow: var(--shadow-heavy);
+			}
+			.feature-icon {
+				font-size: 1.6rem;
+				color: var(--brand);
+				transition: transform 0.3s ease;
+			}
+			.bg-white.p-4.rounded.shadow-sm.h-100 {
+				background: rgba(255,255,255,0.9);
+				border-radius: 15px;
+				box-shadow: var(--shadow-light);
+				transition: transform 0.3s ease, box-shadow 0.3s ease;
+			}
+			.bg-white.p-4.rounded.shadow-sm.h-100:hover {
+				transform: translateY(-5px);
+				box-shadow: var(--shadow-medium);
+			}
+			.bg-white.p-4.rounded.shadow-sm.h-100:hover .feature-icon {
+				transform: scale(1.1);
+			}
+			.btn {
+				border-radius: 25px;
+				font-weight: 600;
+				transition: all 0.3s ease;
+			}
+			.btn-primary {
+				background: var(--gradient-primary);
+				border: none;
+				box-shadow: var(--shadow-light);
+			}
+			.btn-primary:hover {
+				transform: translateY(-2px);
+				box-shadow: var(--shadow-medium);
+			}
+			.btn-outline-primary {
+				border-color: var(--brand);
+				color: var(--brand);
+			}
+			.btn-outline-primary:hover {
+				background: var(--gradient-primary);
+				border-color: transparent;
+				color: white;
+			}
+			.card {
+				border-radius: 15px;
+				box-shadow: var(--shadow-light);
+				transition: box-shadow 0.3s ease;
+			}
+			.card:hover {
+				box-shadow: var(--shadow-medium);
+			}
+			footer {
+				padding: 2rem 0;
+				background: rgba(255,255,255,0.9);
+				margin-top: 4rem;
+				border-top: 1px solid #e9ecef;
+			}
+			.modal-content {
+				border-radius: 15px;
+				border: none;
+				box-shadow: var(--shadow-heavy);
+			}
+			.form-control {
+				border-radius: 10px;
+				border: 1px solid #dee2e6;
+				transition: border-color 0.3s ease, box-shadow 0.3s ease;
+			}
+			.form-control:focus {
+				border-color: var(--brand);
+				box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+			}
+			@media (min-width: 992px) {
+				.hero { padding: 6rem 0; }
+			}
+
+				/* Animations */
+				@keyframes float {
+					0% { transform: translateY(0); }
+					50% { transform: translateY(-8px); }
+					100% { transform: translateY(0); }
+				}
+
+				@keyframes shimmer {
+					0% { background-position: -200% 0; }
+					100% { background-position: 200% 0; }
+				}
+
+				.reveal {
+					opacity: 0;
+					transform: translateY(18px);
+					transition: opacity 600ms cubic-bezier(.2,.8,.2,1), transform 600ms cubic-bezier(.2,.8,.2,1);
+				}
+
+				.reveal.visible { opacity: 1; transform: translateY(0); }
+
+				.reveal-right { opacity: 0; transform: translateX(30px); transition: opacity 500ms, transform 500ms; }
+				.reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+				.card-balance.floating { animation: float 4s ease-in-out infinite; }
+
+				.hero .display-5 {
+					background: linear-gradient(90deg,#6a11cb,#2575fc);
+					-webkit-background-clip: text;
+					-webkit-text-fill-color: transparent;
+					background-size: 200% 100%;
+					animation: shimmer 4s linear infinite;
+				}
+
+				.btn-animate { position: relative; overflow: hidden; }
+				.btn-animate::after {
+					content: '';
+					position: absolute;
+					top: -50%; left: -50%; width: 200%; height: 200%;
+					background: radial-gradient(circle at center, rgba(255,255,255,0.25), transparent 40%);
+					opacity: 0; transform: scale(0.5); transition: opacity 300ms, transform 300ms;
+				}
+				.btn-animate:active::after { opacity: 1; transform: scale(1); transition: none; }
+
+				/* Decorative blurred blobs in hero */
+				.accent-blob {
+					position: absolute; width: 360px; height: 360px; border-radius: 50%; filter: blur(40px); opacity: 0.45; pointer-events: none; transform: translateZ(0);
+				}
+				.accent-blob.blob-1 { right: -80px; top: -60px; background: radial-gradient(circle at 30% 30%, #667eea, transparent 40%); }
+				.accent-blob.blob-2 { left: -100px; bottom: -80px; background: radial-gradient(circle at 60% 60%, #f093fb, transparent 40%); }
+
+				@media (max-width: 768px){ .accent-blob { display:none; } }
+
+		</style>
+	</head>
+	<body>
+		<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+			<div class="container">
+				<a class="navbar-brand" href="#">UserPay</a>
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="nav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item me-3"><a class="nav-link" href="#features">Features</a></li>
+						<li class="nav-item me-3"><a class="nav-link" href="#dashboard">Dashboard</a></li>
+						<li class="nav-item"><a class="btn btn-outline-primary btn-animate me-2" href="login.html">Log in</a></li>
+						<li class="nav-item"><a class="btn btn-primary btn-animate" href="register.html">Sign up</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<header class="hero">
+			<div class="accent-blob blob-1" aria-hidden="true"></div>
+			<div class="accent-blob blob-2" aria-hidden="true"></div>
+			<div class="container">
+				<div class="row align-items-center">
+					<div class="col-lg-6">
+						<h1 class="display-5 fw-bold reveal">A beautiful, secure payments dashboard.</h1>
+						<p class="lead text-muted reveal">Track transactions, manage wallets and users with a clean, responsive UI built for modern teams.</p>
+						<div class="d-flex gap-2">
+							<a class="btn btn-primary btn-lg btn-animate reveal" href="register.html">Get started</a>
+							<a class="btn btn-outline-secondary btn-lg btn-animate reveal" href="#dashboard">See demo</a>
+						</div>
+						<ul class="list-unstyled mt-4">
+							<li class="mb-2"><i class="fa-solid fa-shield-check me-2 text-primary"></i> PCI-ready design patterns</li>
+							<li class="mb-2"><i class="fa-solid fa-clock me-2 text-primary"></i> Fast, responsive layout</li>
+						</ul>
+					</div>
+					<div class="col-lg-5 offset-lg-1 mt-4 mt-lg-0">
+						<div class="card shadow-sm card-balance p-4 floating reveal">
+							<div class="d-flex justify-content-between align-items-center mb-3">
+								<div>
+									<div class="text-muted">Wallet balance</div>
+									<div class="h3 fw-bold" id="wallet-balance">$0.00</div>
+								</div>
+								<div>
+									<button class="btn btn-sm btn-outline-secondary" id="refresh-btn" aria-label="Refresh balance"><i class="fa-solid fa-arrows-rotate"></i></button>
+								</div>
+							</div>
+														<div class="d-flex gap-2">
+																<button class="btn btn-sm btn-primary btn-animate">Send</button>
+																<button class="btn btn-sm btn-outline-primary btn-animate">Receive</button>
+														</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</header>
+
+				<!-- Decorative SVG accent -->
+				<svg width="0" height="0" style="position:absolute;left:-9999px;" aria-hidden="true">
+					<defs>
+						<filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+							<feGaussianBlur stdDeviation="30" result="b" />
+							<feBlend in="SourceGraphic" in2="b" mode="normal" />
+						</filter>
+					</defs>
+				</svg>
+
+		<main class="container">
+			<section id="features" class="py-5">
+				<div class="row g-4">
+					<div class="col-md-4">
+						<div class="bg-white p-4 rounded shadow-sm h-100 reveal">
+							<div class="mb-3 feature-icon"><i class="fa-solid fa-chart-line"></i></div>
+							<h5>Real-time reports</h5>
+							<p class="text-muted">Easy-to-read charts and transaction history for quick insights.</p>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="bg-white p-4 rounded shadow-sm h-100 reveal">
+							<div class="mb-3 feature-icon"><i class="fa-solid fa-user-shield"></i></div>
+							<h5>Secure accounts</h5>
+							<p class="text-muted">Role-based access and secure authentication flows.</p>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="bg-white p-4 rounded shadow-sm h-100 reveal">
+							<div class="mb-3 feature-icon"><i class="fa-solid fa-server"></i></div>
+							<h5>Integrations</h5>
+							<p class="text-muted">Simple REST endpoints for wallets, users and transactions.</p>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="dashboard" class="py-5">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h3 class="mb-0">Demo Dashboard</h3>
+					<div class="text-muted">Preview only</div>
+				</div>
+				<div class="row g-4">
+					<div class="col-lg-4">
+						<div class="card shadow-sm p-3 reveal">
+							<div class="text-muted">Available</div>
+							<div class="h4 fw-bold" id="available-amount">$0.00</div>
+						</div>
+					</div>
+					<div class="col-lg-8">
+						<div class="card shadow-sm p-3 reveal">
+							<div class="d-flex justify-content-between mb-2">
+								<strong>Recent transactions</strong>
+								<small class="text-muted">Last 7 days</small>
+							</div>
+							<div class="table-responsive">
+								<table class="table table-borderless mb-0">
+									<thead>
+										<tr class="text-muted small"><th>Reference</th><th>Type</th><th>Amount</th><th>Status</th></tr>
+									</thead>
+									<tbody id="tx-table">
+										<tr><td colspan="4" class="text-muted">No transactions yet</td></tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<footer>
+			<div class="container d-flex justify-content-between align-items-center py-4">
+				<div class="text-muted">© UserPay</div>
+				<div>
+					<a href="#" class="text-muted me-3">Terms</a>
+					<a href="#" class="text-muted">Privacy</a>
+				</div>
+			</div>
+		</footer>
+
+		<!-- Send money modal -->
+		<div class="modal fade" id="sendModal" tabindex="-1" aria-labelledby="sendModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="sendModalLabel">Send Money</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form id="send-form">
+							<div class="mb-3">
+								<label class="form-label">Recipient username</label>
+								<input type="text" class="form-control" id="send-username" placeholder="recipient_username" required>
+							</div>
+							<div class="mb-3">
+								<label class="form-label">Amount</label>
+								<input type="number" step="0.01" min="0" class="form-control" id="send-amount" placeholder="0.00" required>
+							</div>
+							<div class="mb-3">
+								<label class="form-label">Note (optional)</label>
+								<input type="text" class="form-control" id="send-note" placeholder="For lunch">
+							</div>
+							<div class="d-grid">
+								<button class="btn btn-primary" type="submit">Send</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="loginModalLabel">Log in</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form id="login-form">
+							<div class="mb-3">
+								<label class="form-label">Email</label>
+								<input type="email" class="form-control" id="login-email" required>
+							</div>
+							<div class="mb-3">
+								<label class="form-label">Password</label>
+								<input type="password" class="form-control" id="login-password" required>
+							</div>
+							<div class="d-grid">
+								<button class="btn btn-primary" type="submit">Log in</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="signupModalLabel">Create account</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form id="signup-form">
+							<div class="mb-3">
+								<label class="form-label">Full name</label>
+								<input type="text" class="form-control" id="signup-name" required>
+							</div>
+							<div class="mb-3">
+								<label class="form-label">Email</label>
+								<input type="email" class="form-control" id="signup-email" required>
+							</div>
+							<div class="mb-3">
+								<label class="form-label">Password</label>
+								<input type="password" class="form-control" id="signup-password" required>
+							</div>
+							<div class="d-grid">
+								<button class="btn btn-primary" type="submit">Create account</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/axios@1.5.0/dist/axios.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+		<script>
+			const apiBase = '/api';
+
+			async function fetchBalance(){
+				try{
+					const res = await axios.get(`${apiBase}/wallet`);
+					const bal = res?.data?.balance ?? 0;
+					document.getElementById('wallet-balance').textContent = `$${Number(bal).toFixed(2)}`;
+					document.getElementById('available-amount').textContent = `$${Number(bal).toFixed(2)}`;
+				}catch(e){
+					document.getElementById('wallet-balance').textContent = '$0.00';
+				}
+			}
+
+			async function fetchTransactions(){
+				try{
+					const res = await axios.get(`${apiBase}/transactions`);
+					const tx = res?.data ?? [];
+					const tbody = document.getElementById('tx-table');
+					tbody.innerHTML = '';
+				<script src="https://cdn.jsdelivr.net/npm/axios@1.5.0/dist/axios.min.js"></script>
+				<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+				<script src="js/app.js"></script>
+				<script>
+					window.addEventListener('load', async ()=>{
+						await UserPayClient.init();
+						UserPayClient.refreshUI();
+					});
+				</script>
