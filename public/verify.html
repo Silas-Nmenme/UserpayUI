@@ -1,50 +1,307 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>UserPay — Verify Email</title>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-		<style>
-			:root{--brand:#0d6efd;--muted:#6c757d}
-			body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;background:#f8fafc;color:#212529}
-			.navbar-brand{font-weight:700}
-			.verify-container{max-width:500px;margin:4rem auto;padding:2rem;background:#fff;border-radius:0.5rem;box-shadow:0 0.125rem 0.25rem rgba(0,0,0,0.075);text-align:center}
-			footer{padding:2rem 0;background:#fff;margin-top:4rem}
-		</style>
-	</head>
-	<body>
-		<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
-			<div class="container">
-				<a class="navbar-brand" href="index.html">UserPay</a>
-			</div>
-		</nav>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Account - UserPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand: #6a11cb;
+            --brand-light: #2575fc;
+            --gradient-primary: linear-gradient(135deg, var(--brand), var(--brand-light));
+            --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 20px rgba(0,0,0,0.15);
+            --shadow-heavy: 0 8px 30px rgba(0,0,0,0.2);
+        }
 
-		<main class="container">
-			<div class="verify-container">
-				<i class="fa-solid fa-envelope-circle-check text-primary mb-3" style="font-size:3rem;"></i>
-				<h2 class="mb-3">Check your email</h2>
-				<p class="text-muted">We've sent you a verification link. Please check your email and click the link to verify your account.</p>
-				<p class="text-muted">You will be redirected to the login page shortly...</p>
-			</div>
-		</main>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
 
-		<footer>
-			<div class="container d-flex justify-content-between align-items-center py-4">
-				<div class="text-muted">© UserPay</div>
-				<div>
-					<a href="#" class="text-muted me-3">Terms</a>
-					<a href="#" class="text-muted">Privacy</a>
-				</div>
-			</div>
-		</footer>
+        .navbar {
+            background: rgba(255,255,255,0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s ease;
+        }
 
-		<script>
-			setTimeout(() => {
-				window.location.href = 'login.html';
-			}, 5000);
-		</script>
-	</body>
+        .navbar-brand {
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero {
+            padding: 6rem 0;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--brand);
+            margin-bottom: 1rem;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            box-shadow: var(--shadow-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn {
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.75rem 2rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-outline-primary {
+            border-color: var(--brand);
+            color: var(--brand);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            color: white;
+        }
+
+        .story-section {
+            background: rgba(255,255,255,0.8);
+            padding: 4rem 0;
+            border-radius: 20px;
+            margin: 2rem 0;
+            box-shadow: var(--shadow-light);
+        }
+
+        .accent-blob {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.3;
+            pointer-events: none;
+            transform: translateZ(0);
+        }
+
+        .accent-blob.blob-1 {
+            right: -100px;
+            top: -50px;
+            background: radial-gradient(circle at 30% 30%, #667eea, transparent 50%);
+        }
+
+        .accent-blob.blob-2 {
+            left: -100px;
+            bottom: -50px;
+            background: radial-gradient(circle at 60% 60%, #f093fb, transparent 50%);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        footer {
+            background: rgba(255,255,255,0.9);
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        .verify-card {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .hero { padding: 4rem 0; }
+            .accent-blob { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">UserPay</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="nav">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item me-3"><a class="nav-link" href="index.html#story">Our Story</a></li>
+                    <li class="nav-item me-3"><a class="nav-link" href="index.html#features">Features</a></li>
+                    <li class="nav-item"><a class="btn btn-outline-primary me-2" href="login.html">Log in</a></li>
+                    <li class="nav-item"><a class="btn btn-primary" href="register.html">Sign up</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="accent-blob blob-1"></div>
+        <div class="accent-blob blob-2"></div>
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold reveal">Secure Your Account</h1>
+                    <p class="lead text-muted reveal">Email verification is the first step to ensuring your UserPay account is protected. Check your inbox and follow the simple instructions to complete your setup.</p>
+                    <div class="d-flex gap-3 mt-4">
+                        <a class="btn btn-primary btn-lg reveal" href="login.html">Go to Login</a>
+                        <a class="btn btn-outline-primary btn-lg reveal" href="index.html#features">Learn More</a>
+                    </div>
+                </div>
+                <div class="col-lg-5 offset-lg-1 mt-4 mt-lg-0">
+                    <div class="text-center">
+                        <i class="fas fa-shield-alt display-1 text-primary floating"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card p-5 verify-card text-center">
+                        <div class="feature-icon mb-4">
+                            <i class="fas fa-envelope-circle-check"></i>
+                        </div>
+                        <h2 class="mb-4">Check Your Email</h2>
+                        <p class="lead text-muted mb-4">We've sent you a verification link. Please check your email and click the link to verify your account.</p>
+                        <p class="text-muted">You will be redirected to the login page shortly...</p>
+                        <div class="mt-4">
+                            <a href="login.html" class="btn btn-primary">Go to Login Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="story-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h2>What Happens Next?</h2>
+                    <p class="lead mb-4">Once you verify your email, you'll unlock the full potential of your UserPay account. Here's what you can look forward to:</p>
+                    <div class="row g-4 mt-4">
+                        <div class="col-md-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-user-tag"></i>
+                            </div>
+                            <h5>Choose Your Username</h5>
+                            <p class="text-muted">Pick a unique username that friends can use to send you money instantly.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <h5>Access Your Wallet</h5>
+                            <p class="text-muted">Manage your funds, view transaction history, and track your financial activity.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <h5>Start Transferring</h5>
+                            <p class="text-muted">Send and receive money with just a username - no account numbers required.</p>
+                        </div>
+                    </div>
+                    <p class="mt-4">Your security is our priority. Every account is protected with bank-level encryption and continuous monitoring.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container d-flex justify-content-between align-items-center py-4">
+            <div class="text-muted">© 2023 UserPay. All rights reserved.</div>
+            <div>
+                <a href="#" class="text-muted me-3">Terms of Service</a>
+                <a href="#" class="text-muted me-3">Privacy Policy</a>
+                <a href="#" class="text-muted">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simple reveal animation on scroll
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(reveal => {
+                const windowHeight = window.innerHeight;
+                const elementTop = reveal.getBoundingClientRect().top;
+                const elementVisible = 150;
+
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('visible');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealOnScroll);
+        window.addEventListener('load', revealOnScroll);
+
+        // Auto redirect after 5 seconds
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 5000);
+    </script>
+</body>
 </html>
