@@ -32,17 +32,22 @@ const UserPayClient = (function(){
     const token = res?.data?.token || res?.data?.accessToken || null;
     if(!token) throw new Error('No token returned from server');
     setToken(token);
-    return token;
+    return res.data;
   }
 
   async function register(email, password){
-    await client.post('/auth/register', { email, password });
-    return true;
+    const res = await client.post('/auth/register', { email, password });
+    return res.data.message;
   }
 
   async function resendVerification(email){
-    await client.post('/auth/resend-verification', { email });
-    return true;
+    const res = await client.post('/auth/resend-verification', { email });
+    return res.data.message;
+  }
+
+  async function getProfile(){
+    const res = await client.get('/auth/profile');
+    return res.data;
   }
 
   function logout(){
@@ -51,7 +56,7 @@ const UserPayClient = (function(){
   }
 
   return {
-    init, login, register, resendVerification, logout, setToken, getToken
+    init, login, register, resendVerification, getProfile, logout, setToken, getToken
   };
 })();
 
