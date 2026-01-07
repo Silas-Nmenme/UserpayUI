@@ -1,4 +1,4 @@
-// app.js – UserPay Frontend API Client
+// app.js – UserPay Frontend Client (Dashboard Compatible)
 
 const UserPayClient = (function () {
   const API_BASE = "https://userpay.vercel.app";
@@ -7,12 +7,10 @@ const UserPayClient = (function () {
   const client = axios.create({
     baseURL: API_BASE,
     timeout: 15000,
-    headers: {
-      "Content-Type": "application/json"
-    }
+    headers: { "Content-Type": "application/json" }
   });
 
-  /* ===================== TOKEN HANDLING ===================== */
+  /* ================= TOKEN ================= */
 
   function setToken(token) {
     if (token) {
@@ -30,41 +28,25 @@ const UserPayClient = (function () {
 
   function init() {
     const token = getToken();
-    if (token) {
-      client.defaults.headers.common.Authorization = `Bearer ${token}`;
+    if (!token) {
+      window.location.href = "index.html";
+      return;
     }
+    client.defaults.headers.common.Authorization = `Bearer ${token}`;
   }
 
-  /* ===================== AUTH ===================== */
+  /* ================= AUTH ================= */
 
   async function register(email, password) {
-    const res = await client.post("/auth/register", {
-      email,
-      password
-    });
+    const res = await client.post("/auth/register", { email, password });
     return res.data.message;
   }
 
   async function login(email, password) {
-    const res = await client.post("/auth/login", {
-      email,
-      password
-    });
-
-    const token = res?.data?.token;
-    if (!token) {
-      throw new Error("No token returned from server");
-    }
-
-    setToken(token);
+    const res = await client.post("/auth/login", { email, password });
+    if (!res.data?.token) throw new Error("Login failed");
+    setToken(res.data.token);
     return res.data.user;
-  }
-
-  async function resendVerification(email) {
-    const res = await client.post("/auth/resend-verification", {
-      email
-    });
-    return res.data.message;
   }
 
   async function getProfile() {
@@ -77,33 +59,87 @@ const UserPayClient = (function () {
     window.location.href = "index.html";
   }
 
-  /* ===================== AXIOS ERROR NORMALIZATION ===================== */
+  /* ================= WALLET ================= */
+
+  async function topup(amount) {
+    // Safe call – backend route must exist
+    const res = await client.post("/api/wallet/topup", { amount });
+    return res.data;
+  }
+
+  async function getWallet() {
+    const res = await client.get("/api/wallet");
+    return res.data;
+  }
+
+  async function getTransactions() {
+    const res = await client.get("/api/wallet/transactions?limit=5");
+    return res.data;
+  }
+
+  /* ================= UI REFRESH ================= */
+
+  async function refreshUI() {
+    try {
+      const profile = await getProfile();
+
+      document.getElementById("wallet-balance").textContent =
+        `$${Number(profile.balance || 0).toFixed(2)}`;
+
+      // Load transactions (optional)
+      const txBody = document.getElementById("tx-table");
+      if (!txBody) return;
+
+      let txs = [];
+      try {
+        txs = await getTransactions();
+      } catch {
+        txBody.innerHTML =
+          `<tr><td colspan="5" class="text-muted">No transactions</td></tr>`;
+        return;
+      }
+
+      if (!txs.length) {
+        txBody.innerHTML =
+          `<tr><td colspan="5" class="text-muted">No transactions</td></tr>`;
+        return;
+      }
+
+      txBody.innerHTML = txs.map(tx => `
+        <tr>
+          <td>${tx._id.slice(-6)}</td>
+          <td>${tx.type}</td>
+          <td>$${tx.amount}</td>
+          <td>${tx.status}</td>
+          <td>${new Date(tx.createdAt).toLocaleDateString()}</td>
+        </tr>
+      `).join("");
+
+      document.getElementById("tx-count").textContent = txs.length;
+    } catch (err) {
+      alert(err.message || "Session expired");
+      logout();
+    }
+  }
+
+  /* ================= ERROR NORMALIZATION ================= */
 
   client.interceptors.response.use(
-    response => response,
-    error => {
-      const message =
-        error.response?.data?.message ||
-        error.message ||
-        "Something went wrong";
-      return Promise.reject(new Error(message));
-    }
+    res => res,
+    err => Promise.reject(
+      new Error(err.response?.data?.message || "Network error")
+    )
   );
 
   return {
     init,
     register,
     login,
-    resendVerification,
-    getProfile,
     logout,
+    refreshUI,
+    topup,
     getToken
   };
 })();
-
-/* ===================== AUTO INIT ===================== */
-document.addEventListener("DOMContentLoaded", () => {
-  UserPayClient.init();
-});
 
 window.UserPayClient = UserPayClient;
