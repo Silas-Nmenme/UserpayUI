@@ -1,5 +1,5 @@
 const UserPayClient = (function(){
-  const API_BASE = 'https://user-pay.vercel.app';
+  const API_BASE = 'https://userpay.vercel.app/';
   const TOKEN_KEY = 'userpay_token';
   const client = axios.create({ baseURL: API_BASE, timeout: 15000 });
 
