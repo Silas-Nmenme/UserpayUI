@@ -1,4 +1,4 @@
-// app.js – UserPay Frontend Client (Backend-Aligned)
+// app.js – UserPay Frontend Client (Fully Backend-Aligned)
 
 const UserPayClient = (function () {
   const API_BASE = "https://userpay.vercel.app";
@@ -37,16 +37,9 @@ const UserPayClient = (function () {
 
   /* ================= AUTH ================= */
 
-  async function login(email, password) {
-    const res = await client.post("/auth/login", { email, password });
-    if (!res.data?.token) throw new Error("Login failed");
-    setToken(res.data.token);
-    return res.data.user;
-  }
-
   async function getProfile() {
     const res = await client.get("/auth/profile");
-    return res.data; // { id, username, email, balance }
+    return res.data;
   }
 
   function logout() {
@@ -58,7 +51,7 @@ const UserPayClient = (function () {
 
   async function getBalance() {
     const res = await client.get("/api/wallet/balance");
-    return res.data.balance;
+    return res.data; // { balance, username }
   }
 
   async function topup(amount) {
@@ -68,7 +61,7 @@ const UserPayClient = (function () {
 
   async function getTransactions() {
     const res = await client.get("/api/wallet/transactions");
-    return res.data;
+    return Array.isArray(res.data) ? res.data : [];
   }
 
   /* ================= DASHBOARD UI ================= */
@@ -78,14 +71,16 @@ const UserPayClient = (function () {
       /* ---- PROFILE ---- */
       const profile = await getProfile();
 
-      // Optional: show username if element exists
-      const nameEl = document.getElementById("username");
-      if (nameEl) nameEl.textContent = profile.username;
+      // Navbar username
+      const navUser = document.getElementById("navbar-username");
+      if (navUser) navUser.textContent = profile.username;
 
       /* ---- BALANCE ---- */
-      const balance = await getBalance();
-      document.getElementById("wallet-balance").textContent =
-        `$${Number(balance).toFixed(2)}`;
+      const wallet = await getBalance();
+      const balanceEl = document.getElementById("wallet-balance");
+      if (balanceEl) {
+        balanceEl.textContent = `$${Number(wallet.balance).toFixed(2)}`;
+      }
 
       /* ---- TRANSACTIONS ---- */
       const txBody = document.getElementById("tx-table");
@@ -98,21 +93,39 @@ const UserPayClient = (function () {
       if (!txs.length) {
         txBody.innerHTML =
           `<tr><td colspan="5" class="text-muted">No transactions yet</td></tr>`;
-        txCountEl.textContent = "0";
+        if (txCountEl) txCountEl.textContent = "0";
         return;
       }
 
-      txBody.innerHTML = txs.slice(0, 5).map(tx => `
-        <tr>
-          <td>${tx._id.slice(-6)}</td>
-          <td>${tx.type}</td>
-          <td>$${tx.amount.toFixed(2)}</td>
-          <td>${tx.status}</td>
-          <td>${new Date(tx.createdAt).toLocaleDateString()}</td>
-        </tr>
-      `).join("");
+      txBody.innerHTML = txs.slice(0, 5).map(tx => {
+        const id = tx._id?.slice(-6) || "—";
+        const amount = Number(tx.amount || 0).toFixed(2);
+        const date = tx.createdAt
+          ? new Date(tx.createdAt).toLocaleDateString()
+          : "—";
 
-      txCountEl.textContent = txs.length;
+        // Determine direction
+        let direction = tx.type;
+        if (tx.type === "transfer") {
+          direction = tx.fromUser?.username === profile.username
+            ? `Sent → ${tx.toUser?.username}`
+            : `Received ← ${tx.fromUser?.username}`;
+        } else if (tx.type === "deposit") {
+          direction = "Top-up";
+        }
+
+        return `
+          <tr>
+            <td>${id}</td>
+            <td>${direction}</td>
+            <td>$${amount}</td>
+            <td>${tx.status || "completed"}</td>
+            <td>${date}</td>
+          </tr>
+        `;
+      }).join("");
+
+      if (txCountEl) txCountEl.textContent = txs.length;
     } catch (err) {
       alert(err.message || "Session expired");
       logout();
@@ -130,10 +143,9 @@ const UserPayClient = (function () {
 
   return {
     init,
-    login,
-    logout,
     refreshUI,
     topup,
+    logout,
     getToken
   };
 })();
