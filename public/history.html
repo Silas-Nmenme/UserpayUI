@@ -208,21 +208,21 @@
                 <div class="col-md-3">
                     <div class="stats-card reveal">
                         <i class="fas fa-arrow-up fa-2x mb-2"></i>
-                        <div class="stats-number" id="total-sent">$0.00</div>
+                        <div class="stats-number" id="total-sent">₦0.00</div>
                         <div>Total Sent</div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stats-card reveal">
                         <i class="fas fa-arrow-down fa-2x mb-2"></i>
-                        <div class="stats-number" id="total-received">$0.00</div>
+                        <div class="stats-number" id="total-received">₦0.00</div>
                         <div>Total Received</div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stats-card reveal">
                         <i class="fas fa-wallet fa-2x mb-2"></i>
-                        <div class="stats-number" id="current-balance">$0.00</div>
+                        <div class="stats-number" id="current-balance">₦0.00</div>
                         <div>Current Balance</div>
                     </div>
                 </div>
@@ -285,14 +285,27 @@
         // Load transactions and stats
         async function loadData() {
             try {
-                const [balance, transactions] = await Promise.all([
+                const [profile, balance, transactions] = await Promise.all([
+                    UserPayClient.getProfile(),
                     UserPayClient.getBalance(),
                     UserPayClient.getTransactions()
                 ]);
 
-                document.getElementById('current-balance').textContent = `$${Number(balance).toFixed(2)}`;
+                document.getElementById('current-balance').textContent = `₦${Number(balance).toFixed(2)}`;
 
-                allTransactions = transactions || [];
+                allTransactions = (transactions || []).map(tx => {
+                    let type = tx.type;
+                    if (!type) {
+                        if (tx.fromUser && tx.fromUser.username === profile.username) {
+                            type = 'sent';
+                        } else if (tx.toUser && tx.toUser.username === profile.username) {
+                            type = 'received';
+                        } else if (tx.type === 'deposit') {
+                            type = 'topup';
+                        }
+                    }
+                    return { ...tx, type };
+                });
                 filteredTransactions = [...allTransactions];
 
                 updateStats();
@@ -318,8 +331,8 @@
             });
 
             document.getElementById('total-transactions').textContent = totalTx;
-            document.getElementById('total-sent').textContent = `$${totalSent.toFixed(2)}`;
-            document.getElementById('total-received').textContent = `$${totalReceived.toFixed(2)}`;
+            document.getElementById('total-sent').textContent = `₦${totalSent.toFixed(2)}`;
+            document.getElementById('total-received').textContent = `₦${totalReceived.toFixed(2)}`;
         }
 
         function renderTransactions() {

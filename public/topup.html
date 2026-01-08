@@ -173,7 +173,7 @@
         <div class="container">
             <div class="balance-display reveal">
                 <h4>Current Balance</h4>
-                <div class="balance-amount" id="current-balance">$0.00</div>
+                <div class="balance-amount" id="current-balance">₦0.00</div>
             </div>
 
             <div class="card p-5 topup-form reveal">
@@ -182,16 +182,16 @@
                     <div class="mb-3">
                         <label class="form-label">Quick Amounts</label>
                         <div class="amount-buttons">
-                            <button type="button" class="btn btn-outline-primary amount-btn" data-amount="10">$10</button>
-                            <button type="button" class="btn btn-outline-primary amount-btn" data-amount="25">$25</button>
-                            <button type="button" class="btn btn-outline-primary amount-btn" data-amount="50">$50</button>
-                            <button type="button" class="btn btn-outline-primary amount-btn" data-amount="100">$100</button>
+                            <button type="button" class="btn btn-outline-primary amount-btn" data-amount="10">₦10</button>
+                            <button type="button" class="btn btn-outline-primary amount-btn" data-amount="25">₦25</button>
+                            <button type="button" class="btn btn-outline-primary amount-btn" data-amount="50">₦50</button>
+                            <button type="button" class="btn btn-outline-primary amount-btn" data-amount="100">₦100</button>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Custom Amount ($)</label>
+                        <label class="form-label">Custom Amount (₦)</label>
                         <input type="number" class="form-control" id="topup-amount" placeholder="Enter amount" min="0.01" step="0.01" required>
-                        <div class="form-text">Minimum top-up: $0.01</div>
+                        <div class="form-text">Minimum top-up: ₦0.01</div>
                     </div>
                     <div class="d-grid">
                         <button class="btn btn-primary" type="submit">Top Up Balance</button>
@@ -247,7 +247,7 @@
         async function loadBalance() {
             try {
                 const balance = await UserPayClient.getBalance();
-                document.getElementById('current-balance').textContent = `$${Number(balance).toFixed(2)}`;
+                document.getElementById('current-balance').textContent = `₦${Number(balance).toFixed(2)}`;
             } catch (err) {
                 console.error('Failed to load balance:', err);
             }
