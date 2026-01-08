@@ -108,12 +108,14 @@ const UserPayClient = (function () {
       const wallet = await getBalance();
       const balanceEl = document.getElementById("wallet-balance");
       if (balanceEl) {
-        balanceEl.textContent = `₦${Number(wallet.balance || 0).toFixed(2)}`;
+        balanceEl.textContent = `₦${Number(wallet.balance || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
       }
 
       /* ===== TRANSACTIONS ===== */
       const txBody = document.getElementById("tx-table");
       const txCount = document.getElementById("tx-count");
+      const totalSentEl = document.getElementById("total-sent");
+      const totalReceivedEl = document.getElementById("total-received");
 
       if (!txBody) return;
 
@@ -123,6 +125,27 @@ const UserPayClient = (function () {
       txs = txs.filter(tx => tx && typeof tx === "object" && tx.amount !== undefined);
 
       if (txCount) txCount.textContent = txs.length;
+
+      // Calculate totals
+      let totalSent = 0;
+      let totalReceived = 0;
+      txs.forEach(tx => {
+        const amount = Number(tx.amount);
+        if (tx.type === "transfer") {
+          const from = typeof tx.fromUser === "object" ? tx.fromUser.username : tx.fromUser;
+          const to = typeof tx.toUser === "object" ? tx.toUser.username : tx.toUser;
+          if (from === profile.username) {
+            totalSent += amount;
+          } else if (to === profile.username) {
+            totalReceived += amount;
+          }
+        } else if (tx.type === "deposit") {
+          totalReceived += amount;
+        }
+      });
+
+      if (totalSentEl) totalSentEl.textContent = `₦${totalSent.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      if (totalReceivedEl) totalReceivedEl.textContent = `₦${totalReceived.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
       if (!txs.length) {
         txBody.innerHTML =
