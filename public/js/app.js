@@ -35,6 +35,11 @@ const UserPayClient = (function () {
 
   /* ================= AUTH ================= */
 
+  async function register(email, password) {
+    const res = await client.post("/auth/register", { email, password });
+    return res.data;
+  }
+
   async function login(email, password) {
     const res = await client.post("/auth/login", { email, password });
 
@@ -179,6 +184,7 @@ const UserPayClient = (function () {
 
   return {
     init,
+    register,
     login,
     refreshUI,
     getProfile,
