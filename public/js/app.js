@@ -1,4 +1,4 @@
-// app.js – UserPay Frontend Client (FINAL & COMPLETE)
+// app.js – UserPay Frontend Client (STABLE & SAFE)
 
 const UserPayClient = (function () {
   const API_BASE = "https://userpay.vercel.app";
@@ -38,9 +38,7 @@ const UserPayClient = (function () {
   async function login(email, password) {
     const res = await client.post("/auth/login", { email, password });
 
-    if (!res.data?.token) {
-      throw new Error("Login failed");
-    }
+    if (!res.data?.token) throw new Error("Login failed");
 
     setToken(res.data.token);
     return res.data.user;
@@ -48,6 +46,9 @@ const UserPayClient = (function () {
 
   async function getProfile() {
     const res = await client.get("/auth/profile");
+    if (!res.data || !res.data.username) {
+      throw new Error("Invalid profile response");
+    }
     return res.data;
   }
 
@@ -60,7 +61,7 @@ const UserPayClient = (function () {
 
   async function getBalance() {
     const res = await client.get("/api/wallet/balance");
-    return res.data; // { balance, username }
+    return res.data || { balance: 0 };
   }
 
   async function topup(amount) {
@@ -73,102 +74,95 @@ const UserPayClient = (function () {
     return Array.isArray(res.data) ? res.data : [];
   }
 
-  /* ================= DASHBOARD UI ================= */
+  /* ================= DASHBOARD ================= */
 
   async function refreshUI() {
-  try {
-    /* ===== PROFILE ===== */
-    const profile = await getProfile();
+    try {
+      /* ===== PROFILE ===== */
+      const profile = await getProfile();
 
-    // (Optional navbar username — your HTML doesn't have it yet)
-    const navUser = document.getElementById("navbar-username");
-    if (navUser && profile?.username) {
-      navUser.textContent = profile.username;
-    }
+      const navUser = document.getElementById("navbar-username");
+      if (navUser) navUser.textContent = profile.username;
 
-    /* ===== BALANCE ===== */
-    const wallet = await getBalance();
-    const balanceEl = document.getElementById("wallet-balance");
-    if (balanceEl && wallet?.balance !== undefined) {
-      balanceEl.textContent = `₦${Number(wallet.balance).toFixed(2)}`;
-    }
-
-    /* ===== TRANSACTIONS ===== */
-    const txBody = document.getElementById("tx-table");
-    const txCountEl = document.getElementById("tx-count");
-    if (!txBody) return;
-
-    let txs = await getTransactions();
-
-    // ✅ SAFETY: ensure array + remove bad entries
-    if (!Array.isArray(txs)) txs = [];
-    txs = txs.filter(tx => tx && typeof tx === "object");
-
-    if (txCountEl) txCountEl.textContent = txs.length;
-
-    if (txs.length === 0) {
-      txBody.innerHTML =
-        `<tr><td colspan="5" class="text-muted">No transactions yet</td></tr>`;
-      return;
-    }
-
-    txBody.innerHTML = txs.slice(0, 5).map(tx => {
-      const id = tx._id ? tx._id.slice(-6) : "—";
-      const amount = Number(tx.amount || 0).toFixed(2);
-      const date = tx.createdAt
-        ? new Date(tx.createdAt).toLocaleDateString()
-        : "—";
-
-      let label = tx.type || "transaction";
-
-      if (tx.type === "transfer") {
-        const from =
-          typeof tx.fromUser === "object"
-            ? tx.fromUser.username
-            : tx.fromUser;
-
-        const to =
-          typeof tx.toUser === "object"
-            ? tx.toUser.username
-            : tx.toUser;
-
-        label =
-          from === profile.username
-            ? `Sent → ${to || "user"}`
-            : `Received ← ${from || "user"}`;
+      /* ===== BALANCE ===== */
+      const wallet = await getBalance();
+      const balanceEl = document.getElementById("wallet-balance");
+      if (balanceEl) {
+        balanceEl.textContent = `₦${Number(wallet.balance || 0).toFixed(2)}`;
       }
 
-      if (tx.type === "deposit") {
-        label = "Top-up";
+      /* ===== TRANSACTIONS ===== */
+      const txBody = document.getElementById("tx-table");
+      const txCount = document.getElementById("tx-count");
+
+      if (!txBody) return;
+
+      let txs = await getTransactions();
+
+      // HARD SAFETY
+      txs = txs.filter(tx => tx && typeof tx === "object" && tx.amount !== undefined);
+
+      if (txCount) txCount.textContent = txs.length;
+
+      if (!txs.length) {
+        txBody.innerHTML =
+          `<tr><td colspan="5" class="text-muted">No transactions yet</td></tr>`;
+        return;
       }
 
-      return `
-        <tr>
-          <td>${id}</td>
-          <td>${label}</td>
-          <td>₦${amount}</td>
-          <td>${tx.status || "completed"}</td>
-          <td>${date}</td>
-        </tr>
-      `;
-    }).join("");
+      txBody.innerHTML = txs.slice(0, 5).map(tx => {
+        const id = tx._id ? tx._id.slice(-6) : "—";
+        const amount = Number(tx.amount).toFixed(2);
+        const date = tx.createdAt
+          ? new Date(tx.createdAt).toLocaleDateString()
+          : "—";
 
-  } catch (err) {
-    console.error(err);
-    alert(err.message || "Session expired");
-    logout();
+        let label = tx.type || "Transaction";
+
+        if (tx.type === "transfer") {
+          const from =
+            typeof tx.fromUser === "object"
+              ? tx.fromUser.username
+              : tx.fromUser;
+
+          const to =
+            typeof tx.toUser === "object"
+              ? tx.toUser.username
+              : tx.toUser;
+
+          label =
+            from === profile.username
+              ? `Sent → ${to || "user"}`
+              : `Received ← ${from || "user"}`;
+        }
+
+        if (tx.type === "deposit") label = "Top-up";
+
+        return `
+          <tr>
+            <td>${id}</td>
+            <td>${label}</td>
+            <td>₦${amount}</td>
+            <td>${tx.status || "completed"}</td>
+            <td>${date}</td>
+          </tr>
+        `;
+      }).join("");
+
+    } catch (err) {
+      console.error("Dashboard error:", err);
+      alert("Session expired. Please login again.");
+      logout();
+    }
   }
-}
 
-
-  /* ================= ERROR HANDLING ================= */
+  /* ================= AXIOS ERRORS ================= */
 
   client.interceptors.response.use(
     res => res,
-    err =>
-      Promise.reject(
-        new Error(err.response?.data?.message || "Network error")
-      )
+    err => Promise.reject(
+      new Error(err.response?.data?.message || "Network error")
+    )
   );
 
   /* ================= PUBLIC API ================= */
@@ -176,8 +170,8 @@ const UserPayClient = (function () {
   return {
     init,
     login,
-    getProfile,
     refreshUI,
+    getProfile,
     topup,
     logout,
     getToken
