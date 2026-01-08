@@ -49,6 +49,11 @@ const UserPayClient = (function () {
     return res.data.user;
   }
 
+  async function resendVerification(email) {
+    const res = await client.post("/auth/resend-verification", { email });
+    return res.data;
+  }
+
   async function getProfile() {
     const res = await client.get("/auth/profile");
     if (!res.data || !res.data.username) {
@@ -186,6 +191,7 @@ const UserPayClient = (function () {
     init,
     register,
     login,
+    resendVerification,
     refreshUI,
     getProfile,
     topup,
