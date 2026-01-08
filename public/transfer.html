@@ -165,6 +165,10 @@
                         <label for="transfer-amount" class="form-label">Amount (₦)</label>
                         <input type="number" class="form-control" id="transfer-amount" placeholder="0.00" min="0.01" step="0.01" required>
                     </div>
+                    <div class="mb-3">
+                        <label for="transfer-password" class="form-label">Your Password</label>
+                        <input type="password" class="form-control" id="transfer-password" placeholder="Enter your password" required>
+                    </div>
                     <button type="submit" class="btn btn-primary w-100">Transfer Funds</button>
                 </form>
                 <div id="transfer-message" class="mt-3 text-center" style="display: none;"></div>
@@ -242,14 +246,15 @@
 
             const toUsername = document.getElementById('recipient-username').value.trim();
             const amount = Number(document.getElementById('transfer-amount').value);
+            const password = document.getElementById('transfer-password').value;
 
-            if (!toUsername || amount <= 0) {
-                showMessage('Please enter a valid recipient username and amount.', 'danger');
+            if (!toUsername || amount <= 0 || !password) {
+                showMessage('Please enter a valid recipient username, amount, and your password.', 'danger');
                 return;
             }
 
             try {
-                const res = await axios.post(`${API_BASE}/api/wallet/transfer`, { toUsername, amount }, {
+                const res = await axios.post(`${API_BASE}/api/wallet/transfer`, { toUsername, password, amount }, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 showMessage('Transfer successful!', 'success');
