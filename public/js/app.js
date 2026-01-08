@@ -74,6 +74,16 @@ const UserPayClient = (function () {
     return Array.isArray(res.data) ? res.data : [];
   }
 
+  async function initiateTransfer(toUsername, password, amount) {
+    const res = await client.post("/api/wallet/transfer", { toUsername, password, amount });
+    return res.data;
+  }
+
+  async function confirmTransfer(transactionId, otp) {
+    const res = await client.post("/api/wallet/transfer/confirm", { transactionId, otp });
+    return res.data;
+  }
+
   /* ================= DASHBOARD ================= */
 
   async function refreshUI() {
@@ -174,7 +184,9 @@ const UserPayClient = (function () {
     getProfile,
     topup,
     logout,
-    getToken
+    getToken,
+    initiateTransfer,
+    confirmTransfer
   };
 })();
 
