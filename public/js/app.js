@@ -97,32 +97,62 @@ const UserPayClient = (function () {
   /* ================= DASHBOARD ================= */
 
   async function refreshUI() {
+    let profile = { username: "User" };
+    let wallet = { balance: 0 };
+    let txs = [];
+
+    /* ===== PROFILE ===== */
     try {
-      /* ===== PROFILE ===== */
-      const profile = await getProfile();
-
-      const navUser = document.getElementById("navbar-username");
-      if (navUser) navUser.textContent = profile.username;
-
-      /* ===== BALANCE ===== */
-      const wallet = await getBalance();
-      const balanceEl = document.getElementById("wallet-balance");
-      if (balanceEl) {
-        balanceEl.textContent = `₦${Number(wallet.balance || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      profile = await getProfile();
+    } catch (err) {
+      console.error("Failed to load profile:", err);
+      if (err.status === 401 || err.status === 403) {
+        alert("Session expired. Please login again.");
+        logout();
+        return;
       }
+    }
 
-      /* ===== TRANSACTIONS ===== */
-      const txBody = document.getElementById("tx-table");
-      const txCount = document.getElementById("tx-count");
-      const totalSentEl = document.getElementById("total-sent");
-      const totalReceivedEl = document.getElementById("total-received");
+    const navUser = document.getElementById("navbar-username");
+    if (navUser) navUser.textContent = profile.username;
 
-      if (!txBody) return;
+    /* ===== BALANCE ===== */
+    try {
+      wallet = await getBalance();
+    } catch (err) {
+      console.error("Failed to load balance:", err);
+      if (err.status === 401 || err.status === 403) {
+        alert("Session expired. Please login again.");
+        logout();
+        return;
+      }
+    }
 
-      let txs = await getTransactions();
+    const balanceEl = document.getElementById("wallet-balance");
+    if (balanceEl) {
+      balanceEl.textContent = `₦${Number(wallet.balance || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    }
 
-      // HARD SAFETY
-      txs = txs.filter(tx => tx && typeof tx === "object" && tx.amount !== undefined);
+    /* ===== TRANSACTIONS ===== */
+    const txBody = document.getElementById("tx-table");
+    const txCount = document.getElementById("tx-count");
+    const totalSentEl = document.getElementById("total-sent");
+    const totalReceivedEl = document.getElementById("total-received");
+
+    if (txBody) {
+      try {
+        txs = await getTransactions();
+        // HARD SAFETY
+        txs = txs.filter(tx => tx && typeof tx === "object" && tx.amount !== undefined);
+      } catch (err) {
+        console.error("Failed to load transactions:", err);
+        if (err.status === 401 || err.status === 403) {
+          alert("Session expired. Please login again.");
+          logout();
+          return;
+        }
+        txs = [];
+      }
 
       if (txCount) txCount.textContent = txs.length;
 
@@ -148,57 +178,46 @@ const UserPayClient = (function () {
       if (totalReceivedEl) totalReceivedEl.textContent = `₦${totalReceived.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
       if (!txs.length) {
-        txBody.innerHTML =
-          `<tr><td colspan="5" class="text-muted">No transactions yet</td></tr>`;
-        return;
-      }
-
-      txBody.innerHTML = txs.slice(0, 5).map(tx => {
-        const id = tx._id ? tx._id.slice(-6) : "—";
-        const amount = Number(tx.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        const date = tx.createdAt
-          ? new Date(tx.createdAt).toLocaleDateString()
-          : "—";
-
-        let label = tx.type || "Transaction";
-
-        if (tx.type === "transfer") {
-          const from =
-            typeof tx.fromUser === "object"
-              ? tx.fromUser.username
-              : tx.fromUser;
-
-          const to =
-            typeof tx.toUser === "object"
-              ? tx.toUser.username
-              : tx.toUser;
-
-          label =
-            from === profile.username
-              ? `Sent → ${to || "user"}`
-              : `Received ← ${from || "user"}`;
-        }
-
-        if (tx.type === "deposit") label = "Top-up";
-
-        return `
-          <tr>
-            <td>${id}</td>
-            <td>${label}</td>
-            <td>₦${amount}</td>
-            <td>${tx.status || "completed"}</td>
-            <td>${date}</td>
-          </tr>
-        `;
-      }).join("");
-
-    } catch (err) {
-      console.error("Dashboard error:", err);
-      if (err.status === 401 || err.status === 403) {
-        alert("Session expired. Please login again.");
-        logout();
+        txBody.innerHTML = `<tr><td colspan="5" class="text-muted">No transactions yet</td></tr>`;
       } else {
-        alert("Failed to load dashboard data. Please try refreshing the page.");
+        txBody.innerHTML = txs.slice(0, 5).map(tx => {
+          const id = tx._id ? tx._id.slice(-6) : "—";
+          const amount = Number(tx.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+          const date = tx.createdAt
+            ? new Date(tx.createdAt).toLocaleDateString()
+            : "—";
+
+          let label = tx.type || "Transaction";
+
+          if (tx.type === "transfer") {
+            const from =
+              typeof tx.fromUser === "object"
+                ? tx.fromUser.username
+                : tx.fromUser;
+
+            const to =
+              typeof tx.toUser === "object"
+                ? tx.toUser.username
+                : tx.toUser;
+
+            label =
+              from === profile.username
+                ? `Sent → ${to || "user"}`
+                : `Received ← ${from || "user"}`;
+          }
+
+          if (tx.type === "deposit") label = "Top-up";
+
+          return `
+            <tr>
+              <td>${id}</td>
+              <td>${label}</td>
+              <td>₦${amount}</td>
+              <td>${tx.status || "completed"}</td>
+              <td>${date}</td>
+            </tr>
+          `;
+        }).join("");
       }
     }
   }
