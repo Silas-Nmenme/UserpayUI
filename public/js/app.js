@@ -162,8 +162,8 @@ const UserPayClient = (function () {
       txs.forEach(tx => {
         const amount = Number(tx.amount);
         if (tx.type === "transfer") {
-          const from = typeof tx.fromUser === "object" ? tx.fromUser.username : tx.fromUser;
-          const to = typeof tx.toUser === "object" ? tx.toUser.username : tx.toUser;
+          const from = tx.fromUser && typeof tx.fromUser === "object" ? tx.fromUser.username : tx.fromUser;
+          const to = tx.toUser && typeof tx.toUser === "object" ? tx.toUser.username : tx.toUser;
           if (from === profile.username) {
             totalSent += amount;
           } else if (to === profile.username) {
@@ -191,12 +191,12 @@ const UserPayClient = (function () {
 
           if (tx.type === "transfer") {
             const from =
-              typeof tx.fromUser === "object"
+              tx.fromUser && typeof tx.fromUser === "object"
                 ? tx.fromUser.username
                 : tx.fromUser;
 
             const to =
-              typeof tx.toUser === "object"
+              tx.toUser && typeof tx.toUser === "object"
                 ? tx.toUser.username
                 : tx.toUser;
 
