@@ -155,7 +155,7 @@ const UserPayClient = (function () {
 
       txBody.innerHTML = txs.slice(0, 5).map(tx => {
         const id = tx._id ? tx._id.slice(-6) : "—";
-        const amount = Number(tx.amount).toFixed(2);
+        const amount = Number(tx.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         const date = tx.createdAt
           ? new Date(tx.createdAt).toLocaleDateString()
           : "—";
