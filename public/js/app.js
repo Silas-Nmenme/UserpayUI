@@ -76,69 +76,90 @@ const UserPayClient = (function () {
   /* ================= DASHBOARD UI ================= */
 
   async function refreshUI() {
-    try {
-      // Profile
-      const profile = await getProfile();
+  try {
+    /* ===== PROFILE ===== */
+    const profile = await getProfile();
 
-      const navUser = document.getElementById("navbar-username");
-      if (navUser) navUser.textContent = profile.username;
-
-      // Balance
-      const wallet = await getBalance();
-      const balanceEl = document.getElementById("wallet-balance");
-      if (balanceEl) {
-        balanceEl.textContent = `$${Number(wallet.balance).toFixed(2)}`;
-      }
-
-      // Transactions
-      const txBody = document.getElementById("tx-table");
-      const txCountEl = document.getElementById("tx-count");
-
-      if (!txBody) return;
-
-      const txs = await getTransactions();
-
-      if (!txs.length) {
-        txBody.innerHTML =
-          `<tr><td colspan="5" class="text-muted">No transactions yet</td></tr>`;
-        if (txCountEl) txCountEl.textContent = "0";
-        return;
-      }
-
-      txBody.innerHTML = txs.slice(0, 5).map(tx => {
-        const id = tx._id?.slice(-6) || "—";
-        const amount = Number(tx.amount || 0).toFixed(2);
-        const date = tx.createdAt
-          ? new Date(tx.createdAt).toLocaleDateString()
-          : "—";
-
-        let label = tx.type;
-        if (tx.type === "transfer") {
-          label =
-            tx.fromUser?.username === profile.username
-              ? `Sent → ${tx.toUser?.username}`
-              : `Received ← ${tx.fromUser?.username}`;
-        } else if (tx.type === "deposit") {
-          label = "Top-up";
-        }
-
-        return `
-          <tr>
-            <td>${id}</td>
-            <td>${label}</td>
-            <td>$${amount}</td>
-            <td>${tx.status || "completed"}</td>
-            <td>${date}</td>
-          </tr>
-        `;
-      }).join("");
-
-      if (txCountEl) txCountEl.textContent = txs.length;
-    } catch (err) {
-      alert(err.message || "Session expired");
-      logout();
+    // (Optional navbar username — your HTML doesn't have it yet)
+    const navUser = document.getElementById("navbar-username");
+    if (navUser && profile?.username) {
+      navUser.textContent = profile.username;
     }
+
+    /* ===== BALANCE ===== */
+    const wallet = await getBalance();
+    const balanceEl = document.getElementById("wallet-balance");
+    if (balanceEl && wallet?.balance !== undefined) {
+      balanceEl.textContent = `₦${Number(wallet.balance).toFixed(2)}`;
+    }
+
+    /* ===== TRANSACTIONS ===== */
+    const txBody = document.getElementById("tx-table");
+    const txCountEl = document.getElementById("tx-count");
+    if (!txBody) return;
+
+    let txs = await getTransactions();
+
+    // ✅ SAFETY: ensure array + remove bad entries
+    if (!Array.isArray(txs)) txs = [];
+    txs = txs.filter(tx => tx && typeof tx === "object");
+
+    if (txCountEl) txCountEl.textContent = txs.length;
+
+    if (txs.length === 0) {
+      txBody.innerHTML =
+        `<tr><td colspan="5" class="text-muted">No transactions yet</td></tr>`;
+      return;
+    }
+
+    txBody.innerHTML = txs.slice(0, 5).map(tx => {
+      const id = tx._id ? tx._id.slice(-6) : "—";
+      const amount = Number(tx.amount || 0).toFixed(2);
+      const date = tx.createdAt
+        ? new Date(tx.createdAt).toLocaleDateString()
+        : "—";
+
+      let label = tx.type || "transaction";
+
+      if (tx.type === "transfer") {
+        const from =
+          typeof tx.fromUser === "object"
+            ? tx.fromUser.username
+            : tx.fromUser;
+
+        const to =
+          typeof tx.toUser === "object"
+            ? tx.toUser.username
+            : tx.toUser;
+
+        label =
+          from === profile.username
+            ? `Sent → ${to || "user"}`
+            : `Received ← ${from || "user"}`;
+      }
+
+      if (tx.type === "deposit") {
+        label = "Top-up";
+      }
+
+      return `
+        <tr>
+          <td>${id}</td>
+          <td>${label}</td>
+          <td>₦${amount}</td>
+          <td>${tx.status || "completed"}</td>
+          <td>${date}</td>
+        </tr>
+      `;
+    }).join("");
+
+  } catch (err) {
+    console.error(err);
+    alert(err.message || "Session expired");
+    logout();
   }
+}
+
 
   /* ================= ERROR HANDLING ================= */
 
