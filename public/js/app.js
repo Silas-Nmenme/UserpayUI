@@ -1,4 +1,4 @@
-// app.js – UserPay Frontend Client (Dashboard Compatible)
+// app.js – UserPay Frontend Client (Backend-Aligned)
 
 const UserPayClient = (function () {
   const API_BASE = "https://userpay.vercel.app";
@@ -37,11 +37,6 @@ const UserPayClient = (function () {
 
   /* ================= AUTH ================= */
 
-  async function register(email, password) {
-    const res = await client.post("/auth/register", { email, password });
-    return res.data.message;
-  }
-
   async function login(email, password) {
     const res = await client.post("/auth/login", { email, password });
     if (!res.data?.token) throw new Error("Login failed");
@@ -51,7 +46,7 @@ const UserPayClient = (function () {
 
   async function getProfile() {
     const res = await client.get("/auth/profile");
-    return res.data;
+    return res.data; // { id, username, email, balance }
   }
 
   function logout() {
@@ -61,68 +56,70 @@ const UserPayClient = (function () {
 
   /* ================= WALLET ================= */
 
+  async function getBalance() {
+    const res = await client.get("/api/wallet/balance");
+    return res.data.balance;
+  }
+
   async function topup(amount) {
-    // Safe call – backend route must exist
     const res = await client.post("/api/wallet/topup", { amount });
     return res.data;
   }
 
-  async function getWallet() {
-    const res = await client.get("/api/wallet");
-    return res.data;
-  }
-
   async function getTransactions() {
-    const res = await client.get("/api/wallet/transactions?limit=5");
+    const res = await client.get("/api/wallet/transactions");
     return res.data;
   }
 
-  /* ================= UI REFRESH ================= */
+  /* ================= DASHBOARD UI ================= */
 
   async function refreshUI() {
     try {
+      /* ---- PROFILE ---- */
       const profile = await getProfile();
 
-      document.getElementById("wallet-balance").textContent =
-        `$${Number(profile.balance || 0).toFixed(2)}`;
+      // Optional: show username if element exists
+      const nameEl = document.getElementById("username");
+      if (nameEl) nameEl.textContent = profile.username;
 
-      // Load transactions (optional)
+      /* ---- BALANCE ---- */
+      const balance = await getBalance();
+      document.getElementById("wallet-balance").textContent =
+        `$${Number(balance).toFixed(2)}`;
+
+      /* ---- TRANSACTIONS ---- */
       const txBody = document.getElementById("tx-table");
+      const txCountEl = document.getElementById("tx-count");
+
       if (!txBody) return;
 
-      let txs = [];
-      try {
-        txs = await getTransactions();
-      } catch {
-        txBody.innerHTML =
-          `<tr><td colspan="5" class="text-muted">No transactions</td></tr>`;
-        return;
-      }
+      const txs = await getTransactions();
 
       if (!txs.length) {
         txBody.innerHTML =
-          `<tr><td colspan="5" class="text-muted">No transactions</td></tr>`;
+          `<tr><td colspan="5" class="text-muted">No transactions yet</td></tr>`;
+        txCountEl.textContent = "0";
         return;
       }
 
-      txBody.innerHTML = txs.map(tx => `
+      txBody.innerHTML = txs.slice(0, 5).map(tx => `
         <tr>
           <td>${tx._id.slice(-6)}</td>
           <td>${tx.type}</td>
-          <td>$${tx.amount}</td>
+          <td>$${tx.amount.toFixed(2)}</td>
           <td>${tx.status}</td>
           <td>${new Date(tx.createdAt).toLocaleDateString()}</td>
         </tr>
       `).join("");
 
-      document.getElementById("tx-count").textContent = txs.length;
+      txCountEl.textContent = txs.length;
     } catch (err) {
       alert(err.message || "Session expired");
       logout();
     }
   }
 
-  /* ================= ERROR NORMALIZATION ================= */
+  /* ================= ERROR HANDLING ================= */
 
   client.interceptors.response.use(
     res => res,
@@ -133,7 +130,6 @@ const UserPayClient = (function () {
 
   return {
     init,
-    register,
     login,
     logout,
     refreshUI,
