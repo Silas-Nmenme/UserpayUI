@@ -291,18 +291,22 @@
                     UserPayClient.getTransactions()
                 ]);
 
-                document.getElementById('current-balance').textContent = `₦${Number(balance.balance || 0).toFixed(2)}`;
+                document.getElementById('current-balance').textContent = `₦${Number(balance.balance || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
                 allTransactions = (transactions || []).map(tx => {
-                    let type = tx.type;
-                    if (!type) {
+                    let type;
+                    if (tx.type === 'deposit') {
+                        type = 'topup';
+                    } else if (tx.type === 'transfer') {
                         if (tx.fromUser && tx.fromUser.username === profile.username) {
                             type = 'sent';
                         } else if (tx.toUser && tx.toUser.username === profile.username) {
                             type = 'received';
-                        } else if (tx.type === 'deposit') {
-                            type = 'topup';
+                        } else {
+                            type = 'transfer';
                         }
+                    } else {
+                        type = tx.type || 'unknown';
                     }
                     return { ...tx, type };
                 });
@@ -331,8 +335,8 @@
             });
 
             document.getElementById('total-transactions').textContent = totalTx;
-            document.getElementById('total-sent').textContent = `₦${totalSent.toFixed(2)}`;
-            document.getElementById('total-received').textContent = `₦${totalReceived.toFixed(2)}`;
+            document.getElementById('total-sent').textContent = `₦${totalSent.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('total-received').textContent = `₦${totalReceived.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         }
 
         function renderTransactions() {
