@@ -242,6 +242,8 @@ const UserPayClient = (function () {
     resendVerification,
     refreshUI,
     getProfile,
+    getBalance,
+    getTransactions,
     topup,
     logout,
     getToken,
