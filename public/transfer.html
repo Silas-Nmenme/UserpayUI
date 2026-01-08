@@ -171,7 +171,7 @@
                     </div>
                     <div class="mb-3" id="otp-section" style="display: none;">
                         <label for="transfer-otp" class="form-label">OTP Code</label>
-                        <input type="text" class="form-control" id="transfer-otp" placeholder="Enter 6-digit OTP" maxlength="6" pattern="\d{6}" required>
+                        <input type="text" class="form-control" id="transfer-otp" placeholder="Enter 6-digit OTP" maxlength="6" pattern="\d{6}">
                         <small class="form-text text-muted">Check your email for the OTP code.</small>
                     </div>
                     <button type="submit" class="btn btn-primary w-100" id="transfer-btn">Transfer Funds</button>
@@ -286,52 +286,27 @@
                 return;
             }
 
-            if (isConfirming) {
-                // Confirm transfer with OTP
-                const otp = document.getElementById('transfer-otp').value.trim();
-                if (!otp || otp.length !== 6) {
-                    showMessage('Please enter a valid 6-digit OTP.', 'danger');
-                    return;
-                }
+            // Initiate transfer
+            const toUsername = document.getElementById('recipient-username').value.trim();
+            const amount = Number(document.getElementById('transfer-amount').value);
+            const password = document.getElementById('transfer-password').value;
 
-                try {
-                    const res = await axios.post(`${API_BASE}/api/wallet/transfer/confirm`, { transactionId: currentTransactionId, otp }, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    showMessage('Transfer successful!', 'success');
-                    resetForm();
-                    loadBalance(); // Refresh balance
-                } catch (err) {
-                    const message = err.response?.data?.message || 'Transfer confirmation failed. Please try again.';
-                    showMessage(message, 'danger');
-                    if (err.response?.status === 401 || err.response?.status === 400) {
-                        // Invalid OTP or expired, reset to initial state
-                        resetForm();
-                    }
-                }
-            } else {
-                // Initiate transfer
-                const toUsername = document.getElementById('recipient-username').value.trim();
-                const amount = Number(document.getElementById('transfer-amount').value);
-                const password = document.getElementById('transfer-password').value;
+            if (!toUsername || amount <= 0 || !password) {
+                showMessage('Please enter a valid recipient username, amount, and your password.', 'danger');
+                return;
+            }
 
-                if (!toUsername || amount <= 0 || !password) {
-                    showMessage('Please enter a valid recipient username, amount, and your password.', 'danger');
-                    return;
-                }
-
-                try {
-                    const res = await axios.post(`${API_BASE}/api/wallet/transfer`, { toUsername, password, amount }, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    currentTransactionId = res.data.transactionId;
-                    // Show OTP modal
-                    const otpModal = new bootstrap.Modal(document.getElementById('otp-modal'));
-                    otpModal.show();
-                } catch (err) {
-                    const message = err.response?.data?.message || 'Transfer initiation failed. Please try again.';
-                    showMessage(message, 'danger');
-                }
+            try {
+                const res = await axios.post(`${API_BASE}/api/wallet/transfer`, { toUsername, password, amount }, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                currentTransactionId = res.data.transactionId;
+                // Show OTP modal
+                const otpModal = new bootstrap.Modal(document.getElementById('otp-modal'));
+                otpModal.show();
+            } catch (err) {
+                const message = err.response?.data?.message || 'Transfer initiation failed. Please try again.';
+                showMessage(message, 'danger');
             }
         });
 
