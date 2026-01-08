@@ -169,12 +169,41 @@
                         <label for="transfer-password" class="form-label">Your Password</label>
                         <input type="password" class="form-control" id="transfer-password" placeholder="Enter your password" required>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Transfer Funds</button>
+                    <div class="mb-3" id="otp-section" style="display: none;">
+                        <label for="transfer-otp" class="form-label">OTP Code</label>
+                        <input type="text" class="form-control" id="transfer-otp" placeholder="Enter 6-digit OTP" maxlength="6" pattern="\d{6}" required>
+                        <small class="form-text text-muted">Check your email for the OTP code.</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" id="transfer-btn">Transfer Funds</button>
                 </form>
                 <div id="transfer-message" class="mt-3 text-center" style="display: none;"></div>
             </div>
         </div>
     </section>
+
+    <!-- OTP Confirmation Modal -->
+    <div class="modal fade" id="otp-modal" tabindex="-1" aria-labelledby="otp-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="otp-modal-label">Confirm Transfer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>An OTP has been sent to your email. Please enter the 6-digit code to complete the transfer.</p>
+                    <div class="mb-3">
+                        <label for="modal-otp" class="form-label">OTP Code</label>
+                        <input type="text" class="form-control" id="modal-otp" placeholder="Enter 6-digit OTP" maxlength="6" pattern="\d{6}" required>
+                    </div>
+                    <div id="modal-message" class="text-center" style="display: none;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirm-transfer-btn">Confirm Transfer</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <div class="container d-flex justify-content-between align-items-center py-4">
@@ -192,6 +221,7 @@
     <script>
         const API_BASE = "https://userpay.vercel.app";
         const TOKEN_KEY = "userpay_token";
+        let currentTransactionId = null;
 
         function getToken() {
             return localStorage.getItem(TOKEN_KEY);
@@ -200,6 +230,18 @@
         function logout() {
             localStorage.removeItem(TOKEN_KEY);
             window.location.href = "index.html";
+        }
+
+        function resetForm() {
+            document.getElementById('transfer-form').reset();
+            document.getElementById('modal-otp').value = '';
+            document.getElementById('modal-message').style.display = 'none';
+            currentTransactionId = null;
+            // Hide modal if open
+            const otpModal = bootstrap.Modal.getInstance(document.getElementById('otp-modal'));
+            if (otpModal) {
+                otpModal.hide();
+            }
         }
 
         async function loadBalance() {
@@ -244,30 +286,92 @@
                 return;
             }
 
-            const toUsername = document.getElementById('recipient-username').value.trim();
-            const amount = Number(document.getElementById('transfer-amount').value);
-            const password = document.getElementById('transfer-password').value;
+            if (isConfirming) {
+                // Confirm transfer with OTP
+                const otp = document.getElementById('transfer-otp').value.trim();
+                if (!otp || otp.length !== 6) {
+                    showMessage('Please enter a valid 6-digit OTP.', 'danger');
+                    return;
+                }
 
-            if (!toUsername || amount <= 0 || !password) {
-                showMessage('Please enter a valid recipient username, amount, and your password.', 'danger');
-                return;
-            }
+                try {
+                    const res = await axios.post(`${API_BASE}/api/wallet/transfer/confirm`, { transactionId: currentTransactionId, otp }, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    showMessage('Transfer successful!', 'success');
+                    resetForm();
+                    loadBalance(); // Refresh balance
+                } catch (err) {
+                    const message = err.response?.data?.message || 'Transfer confirmation failed. Please try again.';
+                    showMessage(message, 'danger');
+                    if (err.response?.status === 401 || err.response?.status === 400) {
+                        // Invalid OTP or expired, reset to initial state
+                        resetForm();
+                    }
+                }
+            } else {
+                // Initiate transfer
+                const toUsername = document.getElementById('recipient-username').value.trim();
+                const amount = Number(document.getElementById('transfer-amount').value);
+                const password = document.getElementById('transfer-password').value;
 
-            try {
-                const res = await axios.post(`${API_BASE}/api/wallet/transfer`, { toUsername, password, amount }, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                showMessage('Transfer successful!', 'success');
-                document.getElementById('transfer-form').reset();
-                loadBalance(); // Refresh balance
-            } catch (err) {
-                const message = err.response?.data?.message || 'Transfer failed. Please try again.';
-                showMessage(message, 'danger');
+                if (!toUsername || amount <= 0 || !password) {
+                    showMessage('Please enter a valid recipient username, amount, and your password.', 'danger');
+                    return;
+                }
+
+                try {
+                    const res = await axios.post(`${API_BASE}/api/wallet/transfer`, { toUsername, password, amount }, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    currentTransactionId = res.data.transactionId;
+                    // Show OTP modal
+                    const otpModal = new bootstrap.Modal(document.getElementById('otp-modal'));
+                    otpModal.show();
+                } catch (err) {
+                    const message = err.response?.data?.message || 'Transfer initiation failed. Please try again.';
+                    showMessage(message, 'danger');
+                }
             }
         });
 
         function showMessage(message, type) {
             const msgEl = document.getElementById('transfer-message');
+            msgEl.textContent = message;
+            msgEl.className = `alert alert-${type}`;
+            msgEl.style.display = 'block';
+            setTimeout(() => {
+                msgEl.style.display = 'none';
+            }, 5000);
+        }
+
+        document.getElementById('confirm-transfer-btn').addEventListener('click', async () => {
+            const otp = document.getElementById('modal-otp').value.trim();
+            if (!otp || otp.length !== 6) {
+                showModalMessage('Please enter a valid 6-digit OTP.', 'danger');
+                return;
+            }
+
+            const token = getToken();
+            try {
+                const res = await axios.post(`${API_BASE}/api/wallet/transfer/confirm`, { transactionId: currentTransactionId, otp }, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                showMessage('Transfer successful!', 'success');
+                resetForm();
+                loadBalance(); // Refresh balance
+            } catch (err) {
+                const message = err.response?.data?.message || 'Transfer confirmation failed. Please try again.';
+                showModalMessage(message, 'danger');
+                if (err.response?.status === 401 || err.response?.status === 400) {
+                    // Invalid OTP or expired, reset to initial state
+                    resetForm();
+                }
+            }
+        });
+
+        function showModalMessage(message, type) {
+            const msgEl = document.getElementById('modal-message');
             msgEl.textContent = message;
             msgEl.className = `alert alert-${type}`;
             msgEl.style.display = 'block';
