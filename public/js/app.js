@@ -1,4 +1,4 @@
-// app.js – UserPay Frontend Client (Fully Backend-Aligned)
+// app.js – UserPay Frontend Client (FINAL & COMPLETE)
 
 const UserPayClient = (function () {
   const API_BASE = "https://userpay.vercel.app";
@@ -28,14 +28,23 @@ const UserPayClient = (function () {
 
   function init() {
     const token = getToken();
-    if (!token) {
-      window.location.href = "index.html";
-      return;
+    if (token) {
+      client.defaults.headers.common.Authorization = `Bearer ${token}`;
     }
-    client.defaults.headers.common.Authorization = `Bearer ${token}`;
   }
 
   /* ================= AUTH ================= */
+
+  async function login(email, password) {
+    const res = await client.post("/auth/login", { email, password });
+
+    if (!res.data?.token) {
+      throw new Error("Login failed");
+    }
+
+    setToken(res.data.token);
+    return res.data.user;
+  }
 
   async function getProfile() {
     const res = await client.get("/auth/profile");
@@ -68,21 +77,20 @@ const UserPayClient = (function () {
 
   async function refreshUI() {
     try {
-      /* ---- PROFILE ---- */
+      // Profile
       const profile = await getProfile();
 
-      // Navbar username
       const navUser = document.getElementById("navbar-username");
       if (navUser) navUser.textContent = profile.username;
 
-      /* ---- BALANCE ---- */
+      // Balance
       const wallet = await getBalance();
       const balanceEl = document.getElementById("wallet-balance");
       if (balanceEl) {
         balanceEl.textContent = `$${Number(wallet.balance).toFixed(2)}`;
       }
 
-      /* ---- TRANSACTIONS ---- */
+      // Transactions
       const txBody = document.getElementById("tx-table");
       const txCountEl = document.getElementById("tx-count");
 
@@ -104,20 +112,20 @@ const UserPayClient = (function () {
           ? new Date(tx.createdAt).toLocaleDateString()
           : "—";
 
-        // Determine direction
-        let direction = tx.type;
+        let label = tx.type;
         if (tx.type === "transfer") {
-          direction = tx.fromUser?.username === profile.username
-            ? `Sent → ${tx.toUser?.username}`
-            : `Received ← ${tx.fromUser?.username}`;
+          label =
+            tx.fromUser?.username === profile.username
+              ? `Sent → ${tx.toUser?.username}`
+              : `Received ← ${tx.fromUser?.username}`;
         } else if (tx.type === "deposit") {
-          direction = "Top-up";
+          label = "Top-up";
         }
 
         return `
           <tr>
             <td>${id}</td>
-            <td>${direction}</td>
+            <td>${label}</td>
             <td>$${amount}</td>
             <td>${tx.status || "completed"}</td>
             <td>${date}</td>
@@ -136,13 +144,18 @@ const UserPayClient = (function () {
 
   client.interceptors.response.use(
     res => res,
-    err => Promise.reject(
-      new Error(err.response?.data?.message || "Network error")
-    )
+    err =>
+      Promise.reject(
+        new Error(err.response?.data?.message || "Network error")
+      )
   );
+
+  /* ================= PUBLIC API ================= */
 
   return {
     init,
+    login,
+    getProfile,
     refreshUI,
     topup,
     logout,
