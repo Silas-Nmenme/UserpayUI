@@ -194,8 +194,12 @@ const UserPayClient = (function () {
 
     } catch (err) {
       console.error("Dashboard error:", err);
-      alert("Session expired. Please login again.");
-      logout();
+      if (err.status === 401 || err.status === 403) {
+        alert("Session expired. Please login again.");
+        logout();
+      } else {
+        alert("Failed to load dashboard data. Please try refreshing the page.");
+      }
     }
   }
 
@@ -203,9 +207,11 @@ const UserPayClient = (function () {
 
   client.interceptors.response.use(
     res => res,
-    err => Promise.reject(
-      new Error(err.response?.data?.message || "Network error")
-    )
+    err => {
+      const error = new Error(err.response?.data?.message || "Network error");
+      error.status = err.response?.status;
+      return Promise.reject(error);
+    }
   );
 
   /* ================= PUBLIC API ================= */
