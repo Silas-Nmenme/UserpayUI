@@ -25,3 +25,4 @@
   - [x] Replace quick action buttons with links to crypto-topup.html and crypto-transfer.html
   - [x] Keep balance display and transaction history
   - [x] Remove unused JavaScript functions
+- [x] Fix JavaScript error in crypto.html (removed references to non-existent form elements)
