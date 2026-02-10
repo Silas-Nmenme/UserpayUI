@@ -297,22 +297,25 @@
                 const data = await UserPayClient.getCryptoBalance();
                 console.log('Crypto balance data:', data);
                 const balances = data.cryptoBalances || {};
-                // Hardcoded addresses and memos for receiving crypto
-                cryptoAddresses = {
-                    BTC: "7d5508ffb2f1fd0f46cad13558551d11053e36ed",
-                    ETH: "ace1e8b862df7fda55be54780e732e18e429b0fe",
-                    USDT: "5dc685ec09baaa7febb925478c3d9cff7787f80e"
-                };
-                cryptoMemos = {
-                    BTC: "dcd5d948d90808b7",
-                    ETH: "5f1bb9fd04455571",
-                    USDT: "2d55696286bcd83f"
-                };
                 document.getElementById('btc-balance').textContent = Number(balances.BTC || 0).toFixed(8);
                 document.getElementById('eth-balance').textContent = Number(balances.ETH || 0).toFixed(8);
                 document.getElementById('usdt-balance').textContent = Number(balances.USDT || 0).toFixed(2);
             } catch (err) {
                 console.error('Failed to load crypto balances:', err);
+            }
+        }
+
+        async function loadCryptoAddresses() {
+            try {
+                const data = await UserPayClient.getCryptoAddresses();
+                console.log('Crypto addresses data:', data);
+                cryptoAddresses = data.addresses || {};
+                cryptoMemos = data.memos || {};
+            } catch (err) {
+                console.error('Failed to load crypto addresses:', err);
+                // Fallback to empty objects
+                cryptoAddresses = {};
+                cryptoMemos = {};
             }
         }
 
@@ -366,7 +369,8 @@
             loadCryptoTransactions();
 
             // Refresh balances when window gains focus
-            window.addEventListener('focus', () => {
+            window.addEventListener('focus', async () => {
+                await loadCryptoAddresses();
                 loadCryptoBalances();
                 loadCryptoTransactions();
             });
