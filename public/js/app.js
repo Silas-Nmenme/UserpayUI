@@ -94,6 +94,33 @@ const UserPayClient = (function () {
     return res.data;
   }
 
+  /* ================= CRYPTO ================= */
+
+  async function getCryptoBalance() {
+    const res = await client.get("/api/wallet/crypto/balance");
+    return res.data || { btc: 0, eth: 0, usdt: 0 };
+  }
+
+  async function cryptoTopup(currency, amount) {
+    const res = await client.post("/api/wallet/crypto/topup", { currency, amount });
+    return res.data;
+  }
+
+  async function getCryptoTransactions() {
+    const res = await client.get("/api/wallet/crypto/transactions");
+    return Array.isArray(res.data) ? res.data : [];
+  }
+
+  async function sendCrypto(toAddress, currency, amount, password) {
+    const res = await client.post("/api/wallet/crypto/send", { toAddress, currency, amount, password });
+    return res.data;
+  }
+
+  async function confirmCryptoSend(transactionId, otp) {
+    const res = await client.post("/api/wallet/crypto/send/confirm", { transactionId, otp });
+    return res.data;
+  }
+
   /* ================= DASHBOARD ================= */
 
   async function refreshUI() {
@@ -248,7 +275,12 @@ const UserPayClient = (function () {
     logout,
     getToken,
     initiateTransfer,
-    confirmTransfer
+    confirmTransfer,
+    getCryptoBalance,
+    cryptoTopup,
+    getCryptoTransactions,
+    sendCrypto,
+    confirmCryptoSend
   };
 })();
 

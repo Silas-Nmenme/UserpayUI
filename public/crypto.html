@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Wallet - UserPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --crypto-dark: #0a0a0a;
+            --crypto-darker: #000000;
+            --crypto-accent: #f7931a;
+            --crypto-accent-light: #ff9f43;
+            --crypto-green: #00ff88;
+            --crypto-red: #ff4444;
+            --shadow-crypto: 0 4px 20px rgba(0,0,0,0.8);
+            --shadow-crypto-light: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--crypto-dark) 0%, var(--crypto-darker) 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(0,0,0,0.9);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-crypto-light);
+            transition: all 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--crypto-accent) !important;
+        }
+
+        .crypto-hero {
+            padding: 6rem 0 4rem;
+            margin-top: 80px;
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%);
+        }
+
+        .crypto-card {
+            background: rgba(0,0,0,0.8);
+            border-radius: 20px;
+            box-shadow: var(--shadow-crypto);
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 1px solid var(--crypto-accent);
+        }
+
+        .crypto-balance {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--crypto-green);
+            margin: 1rem 0;
+        }
+
+        .crypto-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .crypto-form {
+            background: rgba(0,0,0,0.8);
+            border-radius: 15px;
+            box-shadow: var(--shadow-crypto-light);
+            padding: 2rem;
+            max-width: 500px;
+            margin: 0 auto;
+            border: 1px solid var(--crypto-accent);
+        }
+
+        .btn-crypto {
+            background: var(--crypto-accent);
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.75rem 2rem;
+            color: black;
+        }
+
+        .btn-crypto:hover {
+            background: var(--crypto-accent-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-crypto);
+        }
+
+        .btn-outline-crypto {
+            border-color: var(--crypto-accent);
+            color: var(--crypto-accent);
+        }
+
+        .btn-outline-crypto:hover {
+            background: var(--crypto-accent);
+            border-color: transparent;
+            color: black;
+        }
+
+        .table-crypto {
+            background: rgba(0,0,0,0.8);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table-crypto th,
+        .table-crypto td {
+            color: white;
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        footer {
+            background: rgba(0,0,0,0.9);
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .crypto-balance { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="dashboard.html">UserPay</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <li class="nav-item me-3">
+                <span class="nav-link fw-bold" id="navbar-username"></span>
+            </li>
+            <div class="collapse navbar-collapse" id="nav">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item me-3"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+                    <li class="nav-item me-3"><a class="nav-link" href="transfer.html">Transfer</a></li>
+                    <li class="nav-item me-3"><a class="nav-link" href="topup.html">Top Up</a></li>
+                    <li class="nav-item me-3"><a class="nav-link" href="history.html">History</a></li>
+                    <li class="nav-item"><button class="btn btn-outline-crypto me-2" id="logout-btn">Logout</button></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="crypto-hero">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="display-4 fw-bold reveal">Crypto Wallet</h1>
+                    <p class="lead text-muted reveal">Manage your cryptocurrency portfolio with advanced security and instant transactions.</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="py-5">
+        <div class="container">
+            <!-- Crypto Balances -->
+            <div class="row mb-5">
+                <div class="col-md-4">
+                    <div class="crypto-card reveal">
+                        <div class="crypto-icon">
+                            <i class="fab fa-bitcoin text-warning"></i>
+                        </div>
+                        <h3>Bitcoin (BTC)</h3>
+                        <div class="crypto-balance" id="btc-balance">0.00000000</div>
+                        <p class="text-muted">≈ ₦0.00</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="crypto-card reveal">
+                        <div class="crypto-icon">
+                            <i class="fab fa-ethereum text-primary"></i>
+                        </div>
+                        <h3>Ethereum (ETH)</h3>
+                        <div class="crypto-balance" id="eth-balance">0.00000000</div>
+                        <p class="text-muted">≈ ₦0.00</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="crypto-card reveal">
+                        <div class="crypto-icon">
+                            <i class="fas fa-dollar-sign text-success"></i>
+                        </div>
+                        <h3>Tether (USDT)</h3>
+                        <div class="crypto-balance" id="usdt-balance">0.00</div>
+                        <p class="text-muted">≈ ₦0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="text-center mb-5">
+                <button class="btn btn-outline-crypto btn-lg me-3" data-bs-toggle="modal" data-bs-target="#sendCryptoModal">Send Crypto</button>
+                <button class="btn btn-outline-crypto btn-lg me-3" data-bs-toggle="modal" data-bs-target="#receiveCryptoModal">Receive Crypto</button>
+                <button class="btn btn-outline-crypto btn-lg" data-bs-toggle="modal" data-bs-target="#topupCryptoModal">Top Up Crypto</button>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="crypto-card reveal">
+                <h3 class="mb-4">Recent Crypto Transactions</h3>
+                <div class="table-responsive">
+                    <table class="table table-crypto">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Currency</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="crypto-tx-table">
+                            <tr>
+                                <td colspan="6" class="text-muted">Loading transactions...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Send Crypto Modal -->
+    <div class="modal fade" id="sendCryptoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Send Crypto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="send-crypto-form">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Currency</label>
+                                    <select class="form-control" id="send-currency" required>
+                                        <option value="btc">Bitcoin (BTC)</option>
+                                        <option value="eth">Ethereum (ETH)</option>
+                                        <option value="usdt">Tether (USDT)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Amount</label>
+                                    <input type="number" class="form-control" id="send-amount" placeholder="0.00" min="0.00000001" step="0.00000001" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Recipient Address</label>
+                            <input type="text" class="form-control" id="send-address" placeholder="Enter crypto address" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Your Password</label>
+                            <input type="password" class="form-control" id="send-password" placeholder="Enter your password" required>
+                        </div>
+                        <button type="submit" class="btn btn-crypto w-100">Send Crypto</button>
+                    </form>
+                    <div id="send-message" class="mt-3 text-center" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receive Crypto Modal -->
+    <div class="modal fade" id="receiveCryptoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Receive Crypto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-3">
+                        <label class="form-label">Select Currency</label>
+                        <select class="form-control" id="receive-currency">
+                            <option value="btc">Bitcoin (BTC)</option>
+                            <option value="eth">Ethereum (ETH)</option>
+                            <option value="usdt">Tether (USDT)</option>
+                        </select>
+                    </div>
+                    <div id="receive-address-display">
+                        <p>Your receiving address will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Up Crypto Modal -->
+    <div class="modal fade" id="topupCryptoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Top Up Crypto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="topup-crypto-form">
+                        <div class="mb-3">
+                            <label class="form-label">Currency</label>
+                            <select class="form-control" id="topup-currency" required>
+                                <option value="btc">Bitcoin (BTC)</option>
+                                <option value="eth">Ethereum (ETH)</option>
+                                <option value="usdt">Tether (USDT)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Amount</label>
+                            <input type="number" class="form-control" id="topup-amount" placeholder="0.00" min="0.00000001" step="0.00000001" required>
+                        </div>
+                        <button type="submit" class="btn btn-crypto w-100">Top Up</button>
+                    </form>
+                    <div id="topup-message" class="mt-3 text-center" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OTP Confirmation Modal -->
+    <div class="modal fade" id="crypto-otp-modal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Confirm Crypto Send</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>An OTP has been sent to your email. Please enter the 6-digit code to complete the crypto send.</p>
+                    <div class="mb-3">
+                        <label class="form-label">OTP Code</label>
+                        <input type="text" class="form-control" id="crypto-otp" placeholder="Enter 6-digit OTP" maxlength="6" pattern="\d{6}" required>
+                    </div>
+                    <div id="crypto-modal-message" class="text-center" style="display: none;"></div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-crypto" id="confirm-crypto-send-btn">Confirm Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container d-flex justify-content-between align-items-center py-4">
+            <div class="text-muted">© 2026 UserPay. All rights reserved.</div>
+            <div>
+                <a href="#" class="text-muted me-3">Terms of Service</a>
+                <a href="#" class="text-muted me-3">Privacy Policy</a>
+                <a href="#" class="text-muted">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.5.0/dist/axios.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let currentCryptoTransactionId = null;
+
+        function logout() {
+            UserPayClient.logout();
+        }
+
+        async function loadCryptoBalances() {
+            try {
+                const balances = await UserPayClient.getCryptoBalance();
+                document.getElementById('btc-balance').textContent = Number(balances.btc || 0).toFixed(8);
+                document.getElementById('eth-balance').textContent = Number(balances.eth || 0).toFixed(8);
+                document.getElementById('usdt-balance').textContent = Number(balances.usdt || 0).toFixed(2);
+            } catch (err) {
+                console.error('Failed to load crypto balances:', err);
+            }
+        }
+
+        async function loadCryptoTransactions() {
+            try {
+                const txs = await UserPayClient.getCryptoTransactions();
+                const txBody = document.getElementById('crypto-tx-table');
+                if (!txs.length) {
+                    txBody.innerHTML = `<tr><td colspan="6" class="text-muted">No crypto transactions yet</td></tr>`;
+                } else {
+                    txBody.innerHTML = txs.slice(0, 10).map(tx => {
+                        const id = tx._id ? tx._id.slice(-6) : "—";
+                        const amount = Number(tx.amount).toFixed(8);
+                        const date = tx.createdAt ? new Date(tx.createdAt).toLocaleDateString() : "—";
+                        return `
+                            <tr>
+                                <td>${id}</td>
+                                <td>${tx.type || "Transaction"}</td>
+                                <td>${tx.currency?.toUpperCase() || "—"}</td>
+                                <td>${amount}</td>
+                                <td>${tx.status || "completed"}</td>
+                                <td>${date}</td>
+                            </tr>
+                        `;
+                    }).join("");
+                }
+            } catch (err) {
+                console.error('Failed to load crypto transactions:', err);
+                document.getElementById('crypto-tx-table').innerHTML = `<tr><td colspan="6" class="text-muted">Failed to load transactions</td></tr>`;
+            }
+        }
+
+        async function loadProfile() {
+            try {
+                const profile = await UserPayClient.getProfile();
+                document.getElementById('navbar-username').textContent = profile.username;
+            } catch (err) {
+                console.error('Error loading profile:', err);
+            }
+        }
+
+        // Send Crypto Form
+        document.getElementById('send-crypto-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const currency = document.getElementById('send-currency').value;
+            const amount = Number(document.getElementById('send-amount').value);
+            const toAddress = document.getElementById('send-address').value.trim();
+            const password = document.getElementById('send-password').value;
+
+            if (!toAddress || amount <= 0 || !password) {
+                showMessage('Please fill all fields correctly.', 'danger', 'send-message');
+                return;
+            }
+
+            try {
+                const res = await UserPayClient.sendCrypto(toAddress, currency, amount, password);
+                currentCryptoTransactionId = res.transactionId;
+                const modal = bootstrap.Modal.getInstance(document.getElementById('sendCryptoModal'));
+                modal.hide();
+                const otpModal = new bootstrap.Modal(document.getElementById('crypto-otp-modal'));
+                otpModal.show();
+            } catch (err) {
+                const message = err.response?.data?.message || 'Send initiation failed. Please try again.';
+                showMessage(message, 'danger', 'send-message');
+            }
+        });
+
+        // Confirm Crypto Send
+        document.getElementById('confirm-crypto-send-btn').addEventListener('click', async () => {
+            const otp = document.getElementById('crypto-otp').value.trim();
+            if (!otp || otp.length !== 6) {
+                showModalMessage('Please enter a valid 6-digit OTP.', 'danger');
+                return;
+            }
+
+            try {
+                await UserPayClient.confirmCryptoSend(currentCryptoTransactionId, otp);
+                showMessage('Crypto send successful!', 'success', 'send-message');
+                resetCryptoForms();
+                loadCryptoBalances();
+                loadCryptoTransactions();
+            } catch (err) {
+                const message = err.response?.data?.message || 'Send confirmation failed. Please try again.';
+                showModalMessage(message, 'danger');
+                if (err.response?.status === 401 || err.response?.status === 400) {
+                    resetCryptoForms();
+                }
+            }
+        });
+
+        // Top Up Crypto Form
+        document.getElementById('topup-crypto-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const currency = document.getElementById('topup-currency').value;
+            const amount = Number(document.getElementById('topup-amount').value);
+
+            if (amount <= 0) {
+                showMessage('Please enter a valid amount.', 'danger', 'topup-message');
+                return;
+            }
+
+            try {
+                await UserPayClient.cryptoTopup(currency, amount);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('topupCryptoModal'));
+                modal.hide();
+                showMessage('Crypto top-up successful!', 'success', 'topup-message');
+                loadCryptoBalances();
+            } catch (err) {
+                const message = err.response?.data?.message || 'Top-up failed. Please try again.';
+                showMessage(message, 'danger', 'topup-message');
+            }
+        });
+
+        function showMessage(message, type, elementId) {
+            const msgEl = document.getElementById(elementId);
+            msgEl.textContent = message;
+            msgEl.className = `alert alert-${type}`;
+            msgEl.style.display = 'block';
+            setTimeout(() => {
+                msgEl.style.display = 'none';
+            }, 5000);
+        }
+
+        function showModalMessage(message, type) {
+            const msgEl = document.getElementById('crypto-modal-message');
+            msgEl.textContent = message;
+            msgEl.className = `alert alert-${type}`;
+            msgEl.style.display = 'block';
+            setTimeout(() => {
+                msgEl.style.display = 'none';
+            }, 5000);
+        }
+
+        function resetCryptoForms() {
+            document.getElementById('send-crypto-form').reset();
+            document.getElementById('crypto-otp').value = '';
+            document.getElementById('crypto-modal-message').style.display = 'none';
+            currentCryptoTransactionId = null;
+            const otpModal = bootstrap.Modal.getInstance(document.getElementById('crypto-otp-modal'));
+            if (otpModal) {
+                otpModal.hide();
+            }
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', logout);
+
+        // Initialize
+        UserPayClient.init();
+        window.addEventListener('load', () => {
+            loadProfile();
+            loadCryptoBalances();
+            loadCryptoTransactions();
+
+            // Reveal animations
+            function revealOnScroll() {
+                const reveals = document.querySelectorAll('.reveal');
+                reveals.forEach(reveal => {
+                    const windowHeight = window.innerHeight;
+                    const elementTop = reveal.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    if (elementTop < windowHeight - elementVisible) {
+                        reveal.classList.add('visible');
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', revealOnScroll);
+            revealOnScroll();
+        });
+    </script>
+</body>
+</html>
