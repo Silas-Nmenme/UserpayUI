@@ -496,8 +496,10 @@
                 currentCryptoTransactionId = res.transactionId;
                 const sendModal = bootstrap.Modal.getInstance(document.getElementById('send-crypto-modal'));
                 if (sendModal) sendModal.hide();
-                const otpModal = new bootstrap.Modal(document.getElementById('crypto-otp-modal'));
-                otpModal.show();
+                setTimeout(() => {
+                    const otpModal = new bootstrap.Modal(document.getElementById('crypto-otp-modal'));
+                    otpModal.show();
+                }, 300);
             } catch (err) {
                 const message = err.response?.data?.message || 'Send initiation failed. Please try again.';
                 showMessage(message, 'danger');
