@@ -1,0 +1,6 @@
+- [ ] Add OTP modal HTML to crypto-transfer.html
+- [ ] Add JavaScript variables for transaction ID
+- [ ] Modify form submit handler to initiate send and show modal
+- [ ] Add confirm button handler for OTP confirmation
+- [ ] Handle success and error messages
+- [ ] Test the flow
