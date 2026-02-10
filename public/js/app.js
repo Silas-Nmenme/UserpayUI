@@ -97,32 +97,32 @@ const UserPayClient = (function () {
   /* ================= CRYPTO ================= */
 
   async function getCryptoBalance() {
-    const res = await client.get("/api/wallet/crypto/balance");
+    const res = await client.get("/crypto/balance");
     const data = res.data;
     if (data && data.cryptoBalances) {
       return data;
     } else {
-      return { cryptoBalances: data || { btc: 0, eth: 0, usdt: 0 }, cryptoAddresses: {}, cryptoMemos: {} };
+      return { cryptoBalances: data || { BTC: 0, ETH: 0, USDT: 0 }, cryptoAddresses: {}, cryptoMemos: {} };
     }
   }
 
   async function cryptoTopup(currency, amount) {
-    const res = await client.post("/api/wallet/crypto/topup", { cryptoType: currency, amount });
+    const res = await client.post("/crypto/topup", { cryptoType: currency, amount });
     return res.data;
   }
 
   async function getCryptoTransactions() {
-    const res = await client.get("/api/wallet/crypto/transactions");
+    const res = await client.get("/crypto/transactions");
     return Array.isArray(res.data) ? res.data : [];
   }
 
   async function sendCrypto(toAddress, currency, amount, password, memo) {
-    const res = await client.post("/api/wallet/crypto/send", { toAddress, cryptoType: currency, amount, password, memo });
+    const res = await client.post("/crypto/send", { toAddress, cryptoType: currency, amount, password, memo });
     return res.data;
   }
 
   async function confirmCryptoSend(transactionId, otp) {
-    const res = await client.post("/api/wallet/crypto/send/confirm", { transactionId, otp });
+    const res = await client.post("/crypto/send/confirm", { transactionId, otp });
     return res.data;
   }
 
