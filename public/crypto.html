@@ -69,6 +69,7 @@
         .crypto-icon {
             font-size: 3rem;
             margin-bottom: 1rem;
+            cursor: pointer;
         }
 
         .crypto-form {
@@ -245,6 +246,29 @@
 
 
 
+    <!-- Crypto Address Modal -->
+    <div class="modal fade" id="cryptoAddressModal" tabindex="-1" aria-labelledby="cryptoAddressModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(0,0,0,0.9); color: white; border: 1px solid var(--crypto-accent);">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cryptoAddressModalLabel">Receive <span id="modal-crypto-type"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="crypto-address" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="crypto-address" readonly style="background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--crypto-accent);">
+                    </div>
+                    <div class="mb-3">
+                        <label for="crypto-memo" class="form-label">Memo (if required)</label>
+                        <input type="text" class="form-control" id="crypto-memo" readonly style="background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--crypto-accent);">
+                    </div>
+                    <button type="button" class="btn btn-crypto" onclick="copyAddress()">Copy Address</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div class="container d-flex justify-content-between align-items-center py-4">
             <div class="text-muted">© 2026 UserPay. All rights reserved.</div>
@@ -261,6 +285,8 @@
     <script src="js/app.js"></script>
     <script>
         let currentCryptoTransactionId = null;
+        let cryptoAddresses = {};
+        let cryptoMemos = {};
 
         function logout() {
             UserPayClient.logout();
@@ -271,6 +297,8 @@
                 const data = await UserPayClient.getCryptoBalance();
                 console.log('Crypto balance data:', data);
                 const balances = data.cryptoBalances || {};
+                cryptoAddresses = data.cryptoAddresses || {};
+                cryptoMemos = data.cryptoMemos || {};
                 document.getElementById('btc-balance').textContent = Number(balances.BTC || 0).toFixed(8);
                 document.getElementById('eth-balance').textContent = Number(balances.ETH || 0).toFixed(8);
                 document.getElementById('usdt-balance').textContent = Number(balances.USDT || 0).toFixed(2);
@@ -349,7 +377,29 @@
 
             window.addEventListener('scroll', revealOnScroll);
             revealOnScroll();
+
+            // Add click listeners to crypto icons
+            document.querySelectorAll('.crypto-icon').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const card = icon.closest('.crypto-card');
+                    const currency = card.querySelector('h3').textContent.split(' ')[0].toUpperCase(); // BTC, ETH, USDT
+                    const address = cryptoAddresses[currency] || 'Address not available';
+                    const memo = cryptoMemos[currency] || '';
+                    document.getElementById('modal-crypto-type').textContent = currency;
+                    document.getElementById('crypto-address').value = address;
+                    document.getElementById('crypto-memo').value = memo;
+                    const modal = new bootstrap.Modal(document.getElementById('cryptoAddressModal'));
+                    modal.show();
+                });
+            });
         });
+
+        function copyAddress() {
+            const address = document.getElementById('crypto-address').value;
+            navigator.clipboard.writeText(address).then(() => {
+                alert('Address copied to clipboard!');
+            });
+        }
     </script>
 </body>
 </html>
