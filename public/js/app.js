@@ -98,7 +98,7 @@ const UserPayClient = (function () {
 
   async function getCryptoBalance() {
     const res = await client.get("/api/wallet/crypto/balance");
-    return res.data || { btc: 0, eth: 0, usdt: 0 };
+    return res.data || { cryptoBalances: { btc: 0, eth: 0, usdt: 0 }, cryptoAddresses: {}, cryptoMemos: {} };
   }
 
   async function cryptoTopup(currency, amount) {

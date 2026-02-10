@@ -308,6 +308,9 @@
                     <div id="receive-address-display">
                         <p>Your receiving address will appear here</p>
                     </div>
+                    <div id="receive-memo-display" style="display: none;">
+                        <p><strong>Memo:</strong> <span id="receive-memo"></span></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -390,7 +393,8 @@
 
         async function loadCryptoBalances() {
             try {
-                const balances = await UserPayClient.getCryptoBalance();
+                const data = await UserPayClient.getCryptoBalance();
+                const balances = data.cryptoBalances || {};
                 document.getElementById('btc-balance').textContent = Number(balances.btc || 0).toFixed(8);
                 document.getElementById('eth-balance').textContent = Number(balances.eth || 0).toFixed(8);
                 document.getElementById('usdt-balance').textContent = Number(balances.usdt || 0).toFixed(2);
