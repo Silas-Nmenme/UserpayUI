@@ -106,11 +106,6 @@ const UserPayClient = (function () {
     }
   }
 
-  async function getCryptoAddresses() {
-    const res = await client.get("/api/wallet/crypto/addresses");
-    return res.data || { addresses: {}, memos: {} };
-  }
-
   async function cryptoTopup(currency, amount) {
     const res = await client.post("/api/wallet/crypto/topup", { cryptoType: currency, amount });
     return res.data;
@@ -287,7 +282,6 @@ const UserPayClient = (function () {
     initiateTransfer,
     confirmTransfer,
     getCryptoBalance,
-    getCryptoAddresses,
     cryptoTopup,
     getCryptoTransactions,
     sendCrypto,

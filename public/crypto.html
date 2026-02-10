@@ -297,22 +297,13 @@
                 const data = await UserPayClient.getCryptoBalance();
                 console.log('Crypto balance data:', data);
                 const balances = data.cryptoBalances || {};
+                cryptoAddresses = data.cryptoAddresses || {};
+                cryptoMemos = data.cryptoMemos || {};
                 document.getElementById('btc-balance').textContent = Number(balances.BTC || 0).toFixed(8);
                 document.getElementById('eth-balance').textContent = Number(balances.ETH || 0).toFixed(8);
                 document.getElementById('usdt-balance').textContent = Number(balances.USDT || 0).toFixed(2);
             } catch (err) {
                 console.error('Failed to load crypto balances:', err);
-            }
-        }
-
-        async function loadCryptoAddresses() {
-            try {
-                const data = await UserPayClient.getCryptoAddresses();
-                console.log('Crypto addresses data:', data);
-                cryptoAddresses = data.addresses || {};
-                cryptoMemos = data.memos || {};
-            } catch (err) {
-                console.error('Failed to load crypto addresses:', err);
                 // Fallback to empty objects
                 cryptoAddresses = {};
                 cryptoMemos = {};
@@ -369,8 +360,7 @@
             loadCryptoTransactions();
 
             // Refresh balances when window gains focus
-            window.addEventListener('focus', async () => {
-                await loadCryptoAddresses();
+            window.addEventListener('focus', () => {
                 loadCryptoBalances();
                 loadCryptoTransactions();
             });
