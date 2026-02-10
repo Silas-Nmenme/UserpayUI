@@ -145,7 +145,7 @@
                 <form id="topup-crypto-form">
                     <div class="mb-3">
                         <label class="form-label">Currency</label>
-                        <select class="form-control" id="topup-currency" required>
+                        <select class="form-control" id="topup-cryptoType" required>
                             <option value="BTC">Bitcoin (BTC)</option>
                             <option value="ETH">Ethereum (ETH)</option>
                             <option value="USDT">Tether (USDT)</option>
@@ -193,7 +193,7 @@
         // Top Up Crypto Form
         document.getElementById('topup-crypto-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const currency = document.getElementById('topup-currency').value;
+            const currency = document.getElementById('topup-cryptoType').value;
             const amount = Number(document.getElementById('topup-amount').value);
 
             if (amount <= 0) {

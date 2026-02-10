@@ -107,7 +107,7 @@ const UserPayClient = (function () {
   }
 
   async function cryptoTopup(currency, amount) {
-    const res = await client.post("/api/wallet/crypto/topup", { currency, amount });
+    const res = await client.post("/api/wallet/crypto/topup", { cryptoType: currency, amount });
     return res.data;
   }
 
@@ -116,8 +116,8 @@ const UserPayClient = (function () {
     return Array.isArray(res.data) ? res.data : [];
   }
 
-  async function sendCrypto(toAddress, currency, amount, password) {
-    const res = await client.post("/api/wallet/crypto/send", { toAddress, currency, amount, password });
+  async function sendCrypto(toAddress, currency, amount, password, memo) {
+    const res = await client.post("/api/wallet/crypto/send", { toAddress, cryptoType: currency, amount, password, memo });
     return res.data;
   }
 
