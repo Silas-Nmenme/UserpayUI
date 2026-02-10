@@ -121,10 +121,7 @@ const UserPayClient = (function () {
     return res.data;
   }
 
-  async function confirmCryptoSend(transactionId, otp) {
-    const res = await client.post("/crypto/send/confirm", { transactionId, otp });
-    return res.data;
-  }
+  // Removed confirmCryptoSend as OTP is not required
 
   /* ================= DASHBOARD ================= */
 
@@ -284,8 +281,7 @@ const UserPayClient = (function () {
     getCryptoBalance,
     cryptoTopup,
     getCryptoTransactions,
-    sendCrypto,
-    confirmCryptoSend
+    sendCrypto
   };
 })();
 

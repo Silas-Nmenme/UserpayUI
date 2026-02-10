@@ -1,5 +1,0 @@
-- [ ] Add send crypto form section to public/crypto.html
-- [ ] Add OTP modal for crypto send confirmation
-- [ ] Update script in public/crypto.html to handle form submission and OTP confirmation
-- [ ] Modify the "Send Crypto" link to integrate with the on-page form
-- [ ] Test the OTP flow and backend API integration

@@ -180,29 +180,7 @@
         </div>
     </section>
 
-    <!-- OTP Confirmation Modal -->
-    <div class="modal fade" id="crypto-otp-modal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title">Confirm Crypto Send</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>An OTP has been sent to your email. Please enter the 6-digit code to complete the crypto send.</p>
-                    <div class="mb-3">
-                        <label class="form-label">OTP Code</label>
-                        <input type="text" class="form-control" id="crypto-otp" placeholder="Enter 6-digit OTP" maxlength="6" pattern="\d{6}" required>
-                    </div>
-                    <div id="crypto-modal-message" class="text-center" style="display: none;"></div>
-                </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-crypto" id="confirm-crypto-send-btn">Confirm Send</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <footer>
         <div class="container d-flex justify-content-between align-items-center py-4">
@@ -219,7 +197,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios@1.5.0/dist/axios.min.js"></script>
     <script src="js/app.js"></script>
     <script>
-        let currentCryptoTransactionId = null;
+
 
         function logout() {
             UserPayClient.logout();
@@ -249,34 +227,12 @@
             }
 
             try {
-                const res = await UserPayClient.sendCrypto(toAddress, currency, amount, password, memo);
-                currentCryptoTransactionId = res.transactionId;
-                const otpModal = new bootstrap.Modal(document.getElementById('crypto-otp-modal'));
-                otpModal.show();
-            } catch (err) {
-                const message = err.response?.data?.message || 'Send initiation failed. Please try again.';
-                showMessage(message, 'danger');
-            }
-        });
-
-        // Confirm Crypto Send
-        document.getElementById('confirm-crypto-send-btn').addEventListener('click', async () => {
-            const otp = document.getElementById('crypto-otp').value.trim();
-            if (!otp || otp.length !== 6) {
-                showModalMessage('Please enter a valid 6-digit OTP.', 'danger');
-                return;
-            }
-
-            try {
-                await UserPayClient.confirmCryptoSend(currentCryptoTransactionId, otp);
+                await UserPayClient.sendCrypto(toAddress, currency, amount, password, memo);
                 showMessage('Crypto send successful!', 'success');
                 resetCryptoForms();
             } catch (err) {
-                const message = err.response?.data?.message || 'Send confirmation failed. Please try again.';
-                showModalMessage(message, 'danger');
-                if (err.response?.status === 401 || err.response?.status === 400) {
-                    resetCryptoForms();
-                }
+                const message = err.response?.data?.message || 'Send failed. Please try again.';
+                showMessage(message, 'danger');
             }
         });
 
@@ -302,13 +258,6 @@
 
         function resetCryptoForms() {
             document.getElementById('send-crypto-form').reset();
-            document.getElementById('crypto-otp').value = '';
-            document.getElementById('crypto-modal-message').style.display = 'none';
-            currentCryptoTransactionId = null;
-            const otpModal = bootstrap.Modal.getInstance(document.getElementById('crypto-otp-modal'));
-            if (otpModal) {
-                otpModal.hide();
-            }
         }
 
         document.getElementById('logout-btn').addEventListener('click', logout);
