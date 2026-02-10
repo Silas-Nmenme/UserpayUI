@@ -214,8 +214,80 @@
 
             <!-- Quick Actions -->
             <div class="text-center mb-5">
-                <a href="crypto-transfer.html" class="btn btn-outline-crypto btn-lg me-3">Send Crypto</a>
+                <button type="button" class="btn btn-outline-crypto btn-lg me-3" data-bs-toggle="modal" data-bs-target="#send-crypto-modal">Send Crypto</button>
                 <a href="crypto-topup.html" class="btn btn-outline-crypto btn-lg">Top Up Crypto</a>
+            </div>
+
+            <!-- Send Crypto Modal -->
+            <div class="modal fade" id="send-crypto-modal" tabindex="-1" aria-labelledby="sendCryptoModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" style="background: rgba(0,0,0,0.9); color: white; border: 1px solid var(--crypto-accent);">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="sendCryptoModalLabel">Send Cryptocurrency</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="send-crypto-form">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="send-currency" class="form-label">Currency</label>
+                                            <select class="form-control" id="send-currency" required style="background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--crypto-accent);">
+                                                <option value="BTC">Bitcoin (BTC)</option>
+                                                <option value="ETH">Ethereum (ETH)</option>
+                                                <option value="USDT">Tether (USDT)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="send-amount" class="form-label">Amount</label>
+                                            <input type="number" class="form-control" id="send-amount" placeholder="0.00" min="0.00000001" step="0.00000001" required style="background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--crypto-accent);">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="send-address" class="form-label">Recipient Address</label>
+                                    <input type="text" class="form-control" id="send-address" placeholder="Enter crypto address" required style="background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--crypto-accent);">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="send-memo" class="form-label">Memo (Optional)</label>
+                                    <input type="text" class="form-control" id="send-memo" placeholder="Optional memo" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--crypto-accent);">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="send-password" class="form-label">Your Password</label>
+                                    <input type="password" class="form-control" id="send-password" placeholder="Enter your password" required style="background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--crypto-accent);">
+                                </div>
+                                <button type="submit" class="btn btn-crypto w-100">Send Crypto</button>
+                            </form>
+                            <div id="send-message" class="mt-3 text-center" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OTP Confirmation Modal for Crypto Send -->
+            <div class="modal fade" id="crypto-otp-modal" tabindex="-1" aria-labelledby="cryptoOtpModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" style="background: rgba(0,0,0,0.9); color: white; border: 1px solid var(--crypto-accent);">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="cryptoOtpModalLabel">Confirm Crypto Send</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>An OTP has been sent to your email. Please enter the 6-digit code to complete the crypto send.</p>
+                            <div class="mb-3">
+                                <label for="crypto-otp" class="form-label">OTP Code</label>
+                                <input type="text" class="form-control" id="crypto-otp" placeholder="Enter 6-digit OTP" maxlength="6" pattern="\d{6}" required style="background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--crypto-accent);">
+                            </div>
+                            <div id="crypto-modal-message" class="text-center" style="display: none;"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-crypto" id="confirm-crypto-send-btn">Confirm Send</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Transaction History -->
@@ -403,6 +475,87 @@
             navigator.clipboard.writeText(address).then(() => {
                 alert('Address copied to clipboard!');
             });
+        }
+
+        // Send Crypto Form
+        document.getElementById('send-crypto-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const currency = document.getElementById('send-currency').value;
+            const amount = Number(document.getElementById('send-amount').value);
+            const toAddress = document.getElementById('send-address').value.trim();
+            const memo = document.getElementById('send-memo').value.trim();
+            const password = document.getElementById('send-password').value;
+
+            if (!toAddress || amount <= 0 || !password) {
+                showMessage('Please fill all fields correctly.', 'danger');
+                return;
+            }
+
+            try {
+                const res = await UserPayClient.sendCrypto(toAddress, currency, amount, password, memo);
+                currentCryptoTransactionId = res.transactionId;
+                const sendModal = bootstrap.Modal.getInstance(document.getElementById('send-crypto-modal'));
+                if (sendModal) sendModal.hide();
+                const otpModal = new bootstrap.Modal(document.getElementById('crypto-otp-modal'));
+                otpModal.show();
+            } catch (err) {
+                const message = err.response?.data?.message || 'Send initiation failed. Please try again.';
+                showMessage(message, 'danger');
+            }
+        });
+
+        // Confirm Crypto Send
+        document.getElementById('confirm-crypto-send-btn').addEventListener('click', async () => {
+            const otp = document.getElementById('crypto-otp').value.trim();
+            if (!otp || otp.length !== 6) {
+                showModalMessage('Please enter a valid 6-digit OTP.', 'danger');
+                return;
+            }
+
+            try {
+                await UserPayClient.confirmCryptoSend(currentCryptoTransactionId, otp);
+                showMessage('Crypto send successful!', 'success');
+                resetCryptoForms();
+                loadCryptoBalances(); // Refresh balances
+                loadCryptoTransactions(); // Refresh transactions
+            } catch (err) {
+                const message = err.response?.data?.message || 'Send confirmation failed. Please try again.';
+                showModalMessage(message, 'danger');
+                if (err.response?.status === 401 || err.response?.status === 400) {
+                    resetCryptoForms();
+                }
+            }
+        });
+
+        function showMessage(message, type) {
+            const msgEl = document.getElementById('send-message');
+            msgEl.textContent = message;
+            msgEl.className = `alert alert-${type}`;
+            msgEl.style.display = 'block';
+            setTimeout(() => {
+                msgEl.style.display = 'none';
+            }, 5000);
+        }
+
+        function showModalMessage(message, type) {
+            const msgEl = document.getElementById('crypto-modal-message');
+            msgEl.textContent = message;
+            msgEl.className = `alert alert-${type}`;
+            msgEl.style.display = 'block';
+            setTimeout(() => {
+                msgEl.style.display = 'none';
+            }, 5000);
+        }
+
+        function resetCryptoForms() {
+            document.getElementById('send-crypto-form').reset();
+            document.getElementById('crypto-otp').value = '';
+            document.getElementById('crypto-modal-message').style.display = 'none';
+            currentCryptoTransactionId = null;
+            const otpModal = bootstrap.Modal.getInstance(document.getElementById('crypto-otp-modal'));
+            if (otpModal) {
+                otpModal.hide();
+            }
         }
     </script>
 </body>
