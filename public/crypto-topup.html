@@ -205,6 +205,10 @@
                 await UserPayClient.cryptoTopup(currency, amount);
                 showMessage('Crypto top-up successful!', 'success');
                 document.getElementById('topup-crypto-form').reset();
+                // Redirect to crypto page to see updated balance
+                setTimeout(() => {
+                    window.location.href = 'crypto.html';
+                }, 2000);
             } catch (err) {
                 const message = err.response?.data?.message || 'Top-up failed. Please try again.';
                 showMessage(message, 'danger');
