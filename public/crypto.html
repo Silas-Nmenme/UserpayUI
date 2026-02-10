@@ -269,10 +269,11 @@
         async function loadCryptoBalances() {
             try {
                 const data = await UserPayClient.getCryptoBalance();
+                console.log('Crypto balance data:', data);
                 const balances = data.cryptoBalances || {};
-                document.getElementById('btc-balance').textContent = Number(balances.btc || 0).toFixed(8);
-                document.getElementById('eth-balance').textContent = Number(balances.eth || 0).toFixed(8);
-                document.getElementById('usdt-balance').textContent = Number(balances.usdt || 0).toFixed(2);
+                document.getElementById('btc-balance').textContent = Number(balances.BTC || 0).toFixed(8);
+                document.getElementById('eth-balance').textContent = Number(balances.ETH || 0).toFixed(8);
+                document.getElementById('usdt-balance').textContent = Number(balances.USDT || 0).toFixed(2);
             } catch (err) {
                 console.error('Failed to load crypto balances:', err);
             }
