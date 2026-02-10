@@ -122,7 +122,7 @@ const UserPayClient = (function () {
   }
 
   async function confirmCryptoSend(transactionId, otp) {
-    const res = await client.post("/api/wallet/crypto/send/confirm", { transactionId, otp });
+    const res = await client.post("/crypto/send/confirm", { transactionId, otp });
     return res.data;
   }
 
