@@ -112,7 +112,7 @@ const UserPayClient = (function () {
   }
 
   async function getCryptoTransactions() {
-    const res = await client.get("/api/wallet/crypto/transactions");
+    const res = await client.get("/api/crypto/transactions");
     return Array.isArray(res.data) ? res.data : [];
   }
 
