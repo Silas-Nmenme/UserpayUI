@@ -350,21 +350,21 @@
             document.querySelector('.loading-spinner').style.display = 'flex';
         
             try {
-                /*
-                    Backend should:
-                    1. Validate password
-                    2. Create pending transaction
-                    3. Generate OTP
-                    4. Email OTP
-                    5. Return transactionId
-                */
+            
                 const res = await axios.post(
-                    `${API_BASE}/api/crypto/send`,
-                    { currency, amount, toAddress, memo, password },
-                    {
-                        headers: { Authorization: `Bearer ${token}` }
-                    }
-                );
+    `${API_BASE}/api/crypto/send`,
+    {
+        cryptoType: currency,  // FIXED HERE
+        amount,
+        toAddress,
+        memo,
+        password
+    },
+    {
+        headers: { Authorization: `Bearer ${token}` }
+    }
+);
+
         
                 const transactionId = res.data.transactionId;
         
