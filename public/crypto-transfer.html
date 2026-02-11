@@ -283,24 +283,35 @@
     <script>
         const API_BASE = "https://userpay.vercel.app";
         const TOKEN_KEY = "userpay_token";
-
+        
         function getToken() {
             return localStorage.getItem(TOKEN_KEY);
         }
-
+        
         function logout() {
             localStorage.removeItem(TOKEN_KEY);
             window.location.href = "index.html";
         }
-
+        
         function resetForm() {
             document.getElementById('send-crypto-form').reset();
         }
-
+        
+        function showMessage(message, type) {
+            const msgEl = document.getElementById('send-message');
+            msgEl.textContent = message;
+            msgEl.className = `alert alert-${type}`;
+            msgEl.style.display = 'block';
+        
+            setTimeout(() => {
+                msgEl.style.display = 'none';
+            }, 5000);
+        }
+        
         async function loadProfile() {
             const token = getToken();
             if (!token) return;
-
+        
             try {
                 const res = await axios.get(`${API_BASE}/auth/profile`, {
                     headers: { Authorization: `Bearer ${token}` }
@@ -310,114 +321,89 @@
                 console.error('Error loading profile:', err);
             }
         }
-
-        // Send Crypto Form
-        document.getElementById('send-crypto-form').addEventListener('submit', async (e) => {
+        
+        // ================================
+        // SEND CRYPTO → SEND OTP → REDIRECT
+        // ================================
+        document.getElementById('send-crypto-form')
+        .addEventListener('submit', async (e) => {
             e.preventDefault();
+        
             const token = getToken();
             if (!token) {
-                alert('Please log in first.');
                 window.location.href = "login.html";
                 return;
             }
-
-            // Show loading spinner
-            document.querySelector('.loading-spinner').style.display = 'flex';
-
-            // Initiate crypto send
+        
             const currency = document.getElementById('send-currency').value;
             const amount = Number(document.getElementById('send-amount').value);
             const toAddress = document.getElementById('send-address').value.trim();
             const memo = document.getElementById('send-memo').value.trim();
             const password = document.getElementById('send-password').value;
-
-            if (!toAddress || amount <= 0 || !password) {
-                document.querySelector('.loading-spinner').style.display = 'none';
-                showMessage('Please enter a valid recipient address, amount, and your password.', 'danger');
+        
+            if (!toAddress || !amount || amount <= 0 || !password) {
+                showMessage('Please enter valid transaction details.', 'danger');
                 return;
             }
-
+        
+            // Show loading spinner
+            document.querySelector('.loading-spinner').style.display = 'flex';
+        
             try {
-                const res = await axios.post(`${API_BASE}/api/crypto/send`, { toAddress, currency, amount, password, memo }, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                // Store transactionId in localStorage and redirect to otp.html
-                localStorage.setItem('crypto_transaction_id', res.data.transactionId);
-                localStorage.setItem('crypto_send_details', JSON.stringify({ currency, amount, toAddress, memo }));
+                /*
+                    Backend should:
+                    1. Validate password
+                    2. Create pending transaction
+                    3. Generate OTP
+                    4. Email OTP
+                    5. Return transactionId
+                */
+                const res = await axios.post(
+                    `${API_BASE}/api/crypto/send`,
+                    { currency, amount, toAddress, memo, password },
+                    {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }
+                );
+        
+                const transactionId = res.data.transactionId;
+        
+                if (!transactionId) {
+                    throw new Error("Transaction ID missing from response");
+                }
+        
+                // Save transaction for OTP page
+                localStorage.setItem("crypto_transaction_id", transactionId);
+                localStorage.setItem("crypto_send_details", JSON.stringify({
+                    currency,
+                    amount,
+                    toAddress,
+                    memo
+                }));
+        
+                // Hide spinner before redirect
+                document.querySelector('.loading-spinner').style.display = 'none';
+        
+                // Redirect to OTP page
                 window.location.href = "otp.html";
+        
             } catch (err) {
                 document.querySelector('.loading-spinner').style.display = 'none';
-                const message = err.response?.data?.message || 'Send initiation failed. Please try again.';
+        
+                const message =
+                    err.response?.data?.message ||
+                    'Send initiation failed. Please try again.';
+        
                 showMessage(message, 'danger');
             }
         });
-
-        function showMessage(message, type) {
-            const msgEl = document.getElementById('send-message');
-            msgEl.textContent = message;
-            msgEl.className = `alert alert-${type}`;
-            msgEl.style.display = 'block';
-            setTimeout(() => {
-                msgEl.style.display = 'none';
-            }, 5000);
-        }
-
-        function showModalMessage(message, type) {
-            const msgEl = document.getElementById('modal-message');
-            msgEl.textContent = message;
-            msgEl.className = `alert alert-${type}`;
-            msgEl.style.display = 'block';
-            setTimeout(() => {
-                msgEl.style.display = 'none';
-            }, 5000);
-        }
-
-        document.getElementById('confirm-send-btn').addEventListener('click', async () => {
-            const otp = document.getElementById('modal-otp').value.trim();
-            if (!otp || otp.length !== 6) {
-                showModalMessage('Please enter a valid 6-digit OTP.', 'danger');
-                return;
-            }
-
-            const token = getToken();
-            try {
-                const res = await axios.post(`${API_BASE}/api/crypto/send/confirm`, { transactionId: currentCryptoTransactionId, otp }, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                showMessage('Crypto send successful!', 'success');
-                resetForm();
-            } catch (err) {
-                const message = err.response?.data?.message || 'Send confirmation failed. Please try again.';
-                showModalMessage(message, 'danger');
-                if (err.response?.status === 401 || err.response?.status === 400) {
-                    // Invalid OTP or expired, reset to initial state
-                    resetForm();
-                }
-            }
-        });
-
+        
         document.getElementById('logout-btn').addEventListener('click', logout);
-
-        // Initialize
+        
+        // Initialize page
         window.addEventListener('load', () => {
             loadProfile();
-
-            // Reveal animations
-            function revealOnScroll() {
-                const reveals = document.querySelectorAll('.reveal');
-                reveals.forEach(reveal => {
-                    const windowHeight = window.innerHeight;
-                    const elementTop = reveal.getBoundingClientRect().top;
-                    const elementVisible = 150;
-                    if (elementTop < windowHeight - elementVisible) {
-                        reveal.classList.add('visible');
-                    }
-                });
-            }
-
-            window.addEventListener('scroll', revealOnScroll);
-            revealOnScroll();
         });
-    </script>
-</body>
+        </script>
+        </body>
 </html>
