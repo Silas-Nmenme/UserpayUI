@@ -114,7 +114,6 @@ const UserPayClient = (function () {
   async function getCryptoTransactions() {
     const res = await client.get("/api/crypto/transactions");
     return Array.isArray(res.data) ? res.data : [];
-  }
 
   async function sendCrypto(toAddress, currency, amount, password, memo) {
     const res = await client.post("/api/wallet/crypto/send", { toAddress, cryptoType: currency, amount, password, memo });
