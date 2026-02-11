@@ -350,21 +350,19 @@
             document.querySelector('.loading-spinner').style.display = 'flex';
         
             try {
-            
                 const res = await axios.post(
-    `${API_BASE}/api/crypto/send`,
-    {
-        cryptoType: currency,  // FIXED HERE
-        amount,
-        toAddress,
-        memo,
-        password
-    },
-    {
-        headers: { Authorization: `Bearer ${token}` }
-    }
-);
-
+                    `${API_BASE}/api/crypto/send`,
+                    {
+                        cryptoType: currency,
+                        amount,
+                        toAddress,
+                        memo,
+                        password
+                    },
+                    {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }
+                );
         
                 const transactionId = res.data.transactionId;
         
@@ -389,12 +387,28 @@
         
             } catch (err) {
                 document.querySelector('.loading-spinner').style.display = 'none';
-        
+    
+                // Handle rate limiting
+                if (err.response?.status === 429) {
+                    showMessage("Too many attempts. Please wait before trying again.", "danger");
+                    return;
+                }
+    
+                // Handle unauthorized (expired login)
+                if (err.response?.status === 401) {
+                    showMessage("Session expired. Please login again.", "danger");
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 2000);
+                    return;
+                }
+    
+                // Default error
                 const message =
                     err.response?.data?.message ||
-                    'Send initiation failed. Please try again.';
-        
-                showMessage(message, 'danger');
+                    "Send initiation failed. Please try again.";
+    
+                showMessage(message, "danger");
             }
         });
         
@@ -404,6 +418,6 @@
         window.addEventListener('load', () => {
             loadProfile();
         });
-        </script>
-        </body>
+    </script>
+    </body>
 </html>

@@ -265,20 +265,20 @@
     <script>
         const API_BASE = "https://userpay.vercel.app";
         const TOKEN_KEY = "userpay_token";
-
+    
         function getToken() {
             return localStorage.getItem(TOKEN_KEY);
         }
-
+    
         function logout() {
             localStorage.removeItem(TOKEN_KEY);
             window.location.href = "index.html";
         }
-
+    
         async function loadProfile() {
             const token = getToken();
             if (!token) return;
-
+    
             try {
                 const res = await axios.get(`${API_BASE}/auth/profile`, {
                     headers: { Authorization: `Bearer ${token}` }
@@ -288,17 +288,17 @@
                 console.error('Error loading profile:', err);
             }
         }
-
+    
         function loadTransactionDetails() {
             const transactionId = localStorage.getItem('crypto_transaction_id');
             const details = JSON.parse(localStorage.getItem('crypto_send_details') || '{}');
-
+    
             if (!transactionId) {
                 alert('No transaction found. Redirecting to send page.');
                 window.location.href = "crypto-transfer.html";
                 return;
             }
-
+    
             const detailsEl = document.getElementById('transaction-details');
             detailsEl.innerHTML = `
                 <h5>Transaction Details</h5>
@@ -308,7 +308,7 @@
                 <p><strong>Memo:</strong> ${details.memo || 'None'}</p>
             `;
         }
-
+    
         // OTP Form
         document.getElementById('otp-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -317,41 +317,56 @@
                 showMessage('Please enter a valid 6-digit OTP.', 'danger');
                 return;
             }
-
+    
             const token = getToken();
             const transactionId = localStorage.getItem('crypto_transaction_id');
-
+    
             if (!token || !transactionId) {
                 alert('Session expired. Please try again.');
                 window.location.href = "crypto-transfer.html";
                 return;
             }
-
+    
             // Show loading spinner
             document.querySelector('.loading-spinner').style.display = 'flex';
-
+    
             try {
-                const res = await axios.post(`${API_BASE}/api/crypto/send/confirm`, { transactionId, otp }, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                const res = await axios.post(`${API_BASE}/api/crypto/send/confirm`, 
+                    { transactionId, otp }, 
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+    
                 // Clear localStorage
                 localStorage.removeItem('crypto_transaction_id');
                 localStorage.removeItem('crypto_send_details');
+    
                 // Redirect to dashboard with success
                 window.location.href = "dashboard.html?success=crypto_send";
+    
             } catch (err) {
                 document.querySelector('.loading-spinner').style.display = 'none';
-                const message = err.response?.data?.message || 'Confirmation failed. Please try again.';
-                showMessage(message, 'danger');
-                if (err.response?.status === 401 || err.response?.status === 400) {
-                    // Invalid OTP or expired, redirect back
-                    setTimeout(() => {
-                        window.location.href = "crypto-transfer.html";
-                    }, 3000);
+    
+                // Handle rate limiting
+                if (err.response?.status === 429) {
+                    showMessage("Too many OTP attempts. Please wait.", "danger");
+                    return;
                 }
+    
+                // Handle unauthorized (expired login)
+                if (err.response?.status === 401) {
+                    showMessage("Session expired. Please login again.", "danger");
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 2000);
+                    return;
+                }
+    
+                // Default error
+                const message = err.response?.data?.message || "OTP confirmation failed.";
+                showMessage(message, "danger");
             }
         });
-
+    
         function showMessage(message, type) {
             const msgEl = document.getElementById('otp-message');
             msgEl.textContent = message;
@@ -361,14 +376,14 @@
                 msgEl.style.display = 'none';
             }, 5000);
         }
-
+    
         document.getElementById('logout-btn').addEventListener('click', logout);
-
+    
         // Initialize
         window.addEventListener('load', () => {
             loadProfile();
             loadTransactionDetails();
-
+    
             // Reveal animations
             function revealOnScroll() {
                 const reveals = document.querySelectorAll('.reveal');
@@ -381,10 +396,11 @@
                     }
                 });
             }
-
+    
             window.addEventListener('scroll', revealOnScroll);
             revealOnScroll();
         });
     </script>
+    
 </body>
 </html>
