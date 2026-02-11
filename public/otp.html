@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send Crypto - UserPay</title>
+    <title>Confirm Crypto Send - UserPay</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -44,7 +44,7 @@
             color: var(--crypto-accent) !important;
         }
 
-        .crypto-hero {
+        .otp-hero {
             padding: 6rem 0 4rem;
             margin-top: 80px;
             background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%);
@@ -84,7 +84,7 @@
             50% { transform: translateY(-20px) rotate(180deg); }
         }
 
-        .crypto-form {
+        .otp-form {
             background: rgba(0,0,0,0.8);
             border-radius: 15px;
             box-shadow: var(--shadow-crypto-light);
@@ -169,6 +169,13 @@
         .spinner-border {
             color: var(--crypto-accent);
         }
+
+        .transaction-details {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -184,8 +191,8 @@
             <div class="collapse navbar-collapse" id="nav">
                 <ul class="navbar-nav ms-auto align-items-lg-center">
                     <li class="nav-item me-3"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
-                    <li class="nav-item me-3"><a class="nav-link" href="transfer.html">Transfer</a></li>
-                    <li class="nav-item me-3"><a class="nav-link" href="topup.html">Top Up</a></li>
+                    <li class="nav-item me-3"><a class="nav-link" href="crypto-transfer.html">Transfer</a></li>
+                    <li class="nav-item me-3"><a class="nav-link" href="crypto-topup.html">Top Up</a></li>
                     <li class="nav-item me-3"><a class="nav-link" href="crypto.html">Crypto</a></li>
                     <li class="nav-item me-3"><a class="nav-link" href="history.html">History</a></li>
                     <li class="nav-item"><button class="btn btn-outline-crypto me-2" id="logout-btn">Logout</button></li>
@@ -194,7 +201,7 @@
         </div>
     </nav>
 
-    <header class="crypto-hero">
+    <header class="otp-hero">
         <div class="floating-coins">
             <i class="fas fa-coins coin"></i>
             <i class="fas fa-coins coin"></i>
@@ -209,8 +216,8 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8 text-center">
-                    <h1 class="display-4 fw-bold reveal">Send Crypto</h1>
-                    <p class="lead reveal fw-bold text-white">Transfer cryptocurrency securely with OTP verification.</p>
+                    <h1 class="display-4 fw-bold reveal">Confirm Crypto Send</h1>
+                    <p class="lead reveal fw-bold text-white">Enter the OTP sent to your email to complete the transaction.</p>
                 </div>
             </div>
         </div>
@@ -218,69 +225,22 @@
 
     <section class="py-5">
         <div class="container">
-            <div class="crypto-form reveal">
-                <h3 class="text-center mb-4">Send Cryptocurrency</h3>
-                <form id="send-crypto-form">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Currency</label>
-                                <select class="form-control" id="send-currency" required>
-                                    <option value="BTC">Bitcoin (BTC)</option>
-                                    <option value="ETH">Ethereum (ETH)</option>
-                                    <option value="USDT">Tether (USDT)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Amount</label>
-                                <input type="number" class="form-control" id="send-amount" placeholder="0.00" min="0.00000001" step="0.00000001" required>
-                            </div>
-                        </div>
-                    </div>
+            <div class="otp-form reveal">
+                <h3 class="text-center mb-4">Enter OTP</h3>
+                <div class="transaction-details" id="transaction-details">
+                    <!-- Transaction details will be populated here -->
+                </div>
+                <form id="otp-form">
                     <div class="mb-3">
-                        <label class="form-label">Recipient Address</label>
-                        <input type="text" class="form-control" id="send-address" placeholder="Enter crypto address" required>
+                        <label for="otp-code" class="form-label">OTP Code</label>
+                        <input type="text" class="form-control" id="otp-code" placeholder="Enter 6-digit OTP" maxlength="6" pattern="\d{6}" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Memo (Optional)</label>
-                        <input type="text" class="form-control" id="send-memo" placeholder="Optional memo">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Your Password</label>
-                        <input type="password" class="form-control" id="send-password" placeholder="Enter your password" required>
-                    </div>
-                    <button type="submit" class="btn btn-crypto w-100">Send Crypto</button>
+                    <button type="submit" class="btn btn-crypto w-100">Confirm Send</button>
                 </form>
-                <div id="send-message" class="mt-3 text-center" style="display: none;"></div>
+                <div id="otp-message" class="mt-3 text-center" style="display: none;"></div>
             </div>
         </div>
     </section>
-
-    <!-- OTP Confirmation Modal -->
-    <div class="modal fade" id="otp-modal" tabindex="-1" aria-labelledby="otp-modal-label" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="otp-modal-label">Confirm Crypto Send</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>An OTP has been sent to your email. Please enter the 6-digit code to complete the crypto send.</p>
-                    <div class="mb-3">
-                        <label for="modal-otp" class="form-label">OTP Code</label>
-                        <input type="text" class="form-control" id="modal-otp" placeholder="Enter 6-digit OTP" maxlength="6" pattern="\d{6}" required>
-                    </div>
-                    <div id="modal-message" class="text-center" style="display: none;"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-crypto" id="confirm-send-btn">Confirm Send</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <footer>
         <div class="container d-flex justify-content-between align-items-center py-4">
@@ -293,12 +253,18 @@
         </div>
     </footer>
 
+    <!-- Loading Spinner -->
+    <div class="loading-spinner">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios@1.5.0/dist/axios.min.js"></script>
     <script>
         const API_BASE = "https://userpay.vercel.app";
         const TOKEN_KEY = "userpay_token";
-        let currentCryptoTransactionId = null;
 
         function getToken() {
             return localStorage.getItem(TOKEN_KEY);
@@ -307,18 +273,6 @@
         function logout() {
             localStorage.removeItem(TOKEN_KEY);
             window.location.href = "index.html";
-        }
-
-        function resetForm() {
-            document.getElementById('send-crypto-form').reset();
-            document.getElementById('modal-otp').value = '';
-            document.getElementById('modal-message').style.display = 'none';
-            currentCryptoTransactionId = null;
-            // Hide modal if open
-            const otpModal = bootstrap.Modal.getInstance(document.getElementById('otp-modal'));
-            if (otpModal) {
-                otpModal.hide();
-            }
         }
 
         async function loadProfile() {
@@ -335,49 +289,71 @@
             }
         }
 
-        // Send Crypto Form
-        document.getElementById('send-crypto-form').addEventListener('submit', async (e) => {
+        function loadTransactionDetails() {
+            const transactionId = localStorage.getItem('crypto_transaction_id');
+            const details = JSON.parse(localStorage.getItem('crypto_send_details') || '{}');
+
+            if (!transactionId) {
+                alert('No transaction found. Redirecting to send page.');
+                window.location.href = "crypto-transfer.html";
+                return;
+            }
+
+            const detailsEl = document.getElementById('transaction-details');
+            detailsEl.innerHTML = `
+                <h5>Transaction Details</h5>
+                <p><strong>Currency:</strong> ${details.currency || 'N/A'}</p>
+                <p><strong>Amount:</strong> ${details.amount || 'N/A'}</p>
+                <p><strong>Recipient:</strong> ${details.toAddress ? details.toAddress.substring(0, 10) + '...' : 'N/A'}</p>
+                <p><strong>Memo:</strong> ${details.memo || 'None'}</p>
+            `;
+        }
+
+        // OTP Form
+        document.getElementById('otp-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const otp = document.getElementById('otp-code').value.trim();
+            if (!otp || otp.length !== 6) {
+                showMessage('Please enter a valid 6-digit OTP.', 'danger');
+                return;
+            }
+
             const token = getToken();
-            if (!token) {
-                alert('Please log in first.');
-                window.location.href = "login.html";
+            const transactionId = localStorage.getItem('crypto_transaction_id');
+
+            if (!token || !transactionId) {
+                alert('Session expired. Please try again.');
+                window.location.href = "crypto-transfer.html";
                 return;
             }
 
             // Show loading spinner
             document.querySelector('.loading-spinner').style.display = 'flex';
 
-            // Initiate crypto send
-            const currency = document.getElementById('send-currency').value;
-            const amount = Number(document.getElementById('send-amount').value);
-            const toAddress = document.getElementById('send-address').value.trim();
-            const memo = document.getElementById('send-memo').value.trim();
-            const password = document.getElementById('send-password').value;
-
-            if (!toAddress || amount <= 0 || !password) {
-                document.querySelector('.loading-spinner').style.display = 'none';
-                showMessage('Please enter a valid recipient address, amount, and your password.', 'danger');
-                return;
-            }
-
             try {
-                const res = await axios.post(`${API_BASE}/api/crypto/send`, { toAddress, currency, amount, password, memo }, {
+                const res = await axios.post(`${API_BASE}/api/crypto/send/confirm`, { transactionId, otp }, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                // Store transactionId in localStorage and redirect to otp.html
-                localStorage.setItem('crypto_transaction_id', res.data.transactionId);
-                localStorage.setItem('crypto_send_details', JSON.stringify({ currency, amount, toAddress, memo }));
-                window.location.href = "otp.html";
+                // Clear localStorage
+                localStorage.removeItem('crypto_transaction_id');
+                localStorage.removeItem('crypto_send_details');
+                // Redirect to dashboard with success
+                window.location.href = "dashboard.html?success=crypto_send";
             } catch (err) {
                 document.querySelector('.loading-spinner').style.display = 'none';
-                const message = err.response?.data?.message || 'Send initiation failed. Please try again.';
+                const message = err.response?.data?.message || 'Confirmation failed. Please try again.';
                 showMessage(message, 'danger');
+                if (err.response?.status === 401 || err.response?.status === 400) {
+                    // Invalid OTP or expired, redirect back
+                    setTimeout(() => {
+                        window.location.href = "crypto-transfer.html";
+                    }, 3000);
+                }
             }
         });
 
         function showMessage(message, type) {
-            const msgEl = document.getElementById('send-message');
+            const msgEl = document.getElementById('otp-message');
             msgEl.textContent = message;
             msgEl.className = `alert alert-${type}`;
             msgEl.style.display = 'block';
@@ -385,46 +361,13 @@
                 msgEl.style.display = 'none';
             }, 5000);
         }
-
-        function showModalMessage(message, type) {
-            const msgEl = document.getElementById('modal-message');
-            msgEl.textContent = message;
-            msgEl.className = `alert alert-${type}`;
-            msgEl.style.display = 'block';
-            setTimeout(() => {
-                msgEl.style.display = 'none';
-            }, 5000);
-        }
-
-        document.getElementById('confirm-send-btn').addEventListener('click', async () => {
-            const otp = document.getElementById('modal-otp').value.trim();
-            if (!otp || otp.length !== 6) {
-                showModalMessage('Please enter a valid 6-digit OTP.', 'danger');
-                return;
-            }
-
-            const token = getToken();
-            try {
-                const res = await axios.post(`${API_BASE}/api/crypto/send/confirm`, { transactionId: currentCryptoTransactionId, otp }, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                showMessage('Crypto send successful!', 'success');
-                resetForm();
-            } catch (err) {
-                const message = err.response?.data?.message || 'Send confirmation failed. Please try again.';
-                showModalMessage(message, 'danger');
-                if (err.response?.status === 401 || err.response?.status === 400) {
-                    // Invalid OTP or expired, reset to initial state
-                    resetForm();
-                }
-            }
-        });
 
         document.getElementById('logout-btn').addEventListener('click', logout);
 
         // Initialize
         window.addEventListener('load', () => {
             loadProfile();
+            loadTransactionDetails();
 
             // Reveal animations
             function revealOnScroll() {
