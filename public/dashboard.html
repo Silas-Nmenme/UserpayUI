@@ -7,20 +7,60 @@
     <title>Dashboard - UserPay</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
         :root {
             --brand: #6a11cb;
             --brand-light: #2575fc;
             --gradient-primary: linear-gradient(135deg, var(--brand), var(--brand-light));
+            --gradient-secondary: linear-gradient(135deg, #ff9f43, #ee5a24);
+            --gradient-accent: linear-gradient(135deg, #667eea, #764ba2);
             --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
             --shadow-medium: 0 4px 20px rgba(0,0,0,0.15);
             --shadow-heavy: 0 8px 30px rgba(0,0,0,0.2);
+            --glow: 0 0 20px rgba(106, 17, 203, 0.3);
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Particle Background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--brand);
+            border-radius: 50%;
+            animation: particleFloat 10s linear infinite;
+        }
+
+        .particle:nth-child(odd) {
+            background: var(--brand-light);
+            animation-duration: 8s;
+        }
+
+        .particle:nth-child(3n) {
+            background: #ff9f43;
+            animation-duration: 12s;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
         }
 
         .navbar {
@@ -34,6 +74,12 @@
             left: 0;
             right: 0;
             z-index: 1030;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
         }
 
         .navbar-brand {
@@ -42,12 +88,24 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            animation: textGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes textGlow {
+            from { filter: drop-shadow(0 0 5px rgba(106, 17, 203, 0.5)); }
+            to { filter: drop-shadow(0 0 15px rgba(106, 17, 203, 0.8)); }
         }
 
         .dashboard-hero {
             padding: 6rem 0 4rem;
             margin-top: 80px;
             background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            animation: heroFadeIn 1.5s ease-out;
+        }
+
+        @keyframes heroFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .balance-card {
@@ -57,6 +115,32 @@
             padding: 2rem;
             text-align: center;
             margin-bottom: 2rem;
+            animation: bounceIn 1s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         .balance-amount {
@@ -64,6 +148,12 @@
             font-weight: 700;
             color: var(--brand);
             margin: 1rem 0;
+            animation: numberGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes numberGlow {
+            from { text-shadow: 0 0 10px rgba(106, 17, 203, 0.5); }
+            to { text-shadow: 0 0 20px rgba(106, 17, 203, 0.8); }
         }
 
         .quick-actions {
@@ -71,19 +161,43 @@
             gap: 1rem;
             justify-content: center;
             margin-bottom: 2rem;
+            animation: slideInUp 1s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .card {
             background: rgba(255,255,255,0.9);
             border-radius: 15px;
             box-shadow: var(--shadow-light);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-medium);
+            transform: translateY(-10px) rotate(1deg);
+            box-shadow: var(--shadow-heavy);
+            box-shadow: var(--glow);
         }
 
         .btn {
@@ -91,28 +205,56 @@
             font-weight: 600;
             transition: all 0.3s ease;
             padding: 0.75rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .btn-primary {
             background: var(--gradient-primary);
             border: none;
             box-shadow: var(--shadow-light);
+            animation: btnGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes btnGlow {
+            from { box-shadow: var(--shadow-light); }
+            to { box-shadow: var(--glow); }
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: var(--shadow-heavy);
         }
 
         .btn-outline-primary {
             border-color: var(--brand);
             color: var(--brand);
+            background: transparent;
         }
 
         .btn-outline-primary:hover {
             background: var(--gradient-primary);
             border-color: transparent;
             color: white;
+            transform: translateY(-2px);
         }
 
         .testimonials {
@@ -121,6 +263,12 @@
             border-radius: 20px;
             margin: 2rem 0;
             box-shadow: var(--shadow-light);
+            animation: slideInLeft 1s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         .testimonial-card {
@@ -129,39 +277,53 @@
             padding: 2rem;
             box-shadow: var(--shadow-light);
             margin: 1rem 0;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
         }
 
         .reveal {
             opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
+            transform: translateY(30px) scale(0.9);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         .reveal.visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
         }
 
         .reveal-right {
             opacity: 0;
-            transform: translateX(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
+            transform: translateX(30px) scale(0.9);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         .reveal-right.visible {
             opacity: 1;
-            transform: translateX(0);
+            transform: translateX(0) scale(1);
         }
 
         footer {
             background: rgba(255,255,255,0.9);
             padding: 2rem 0;
             margin-top: 4rem;
+            animation: fadeInUp 1s ease-out;
         }
 
         @media (max-width: 768px) {
             .quick-actions { flex-direction: column; align-items: center; }
             .balance-amount { font-size: 2rem; }
+            .particles { display: none; }
         }
     </style>
 </head>

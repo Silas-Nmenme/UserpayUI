@@ -6,20 +6,60 @@
     <title>UserPay - Easy Money Transfers with Usernames</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
         :root {
             --brand: #6a11cb;
             --brand-light: #2575fc;
             --gradient-primary: linear-gradient(135deg, var(--brand), var(--brand-light));
+            --gradient-secondary: linear-gradient(135deg, #ff9f43, #ee5a24);
+            --gradient-accent: linear-gradient(135deg, #667eea, #764ba2);
             --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
             --shadow-medium: 0 4px 20px rgba(0,0,0,0.15);
             --shadow-heavy: 0 8px 30px rgba(0,0,0,0.2);
+            --glow: 0 0 20px rgba(106, 17, 203, 0.3);
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Particle Background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--brand);
+            border-radius: 50%;
+            animation: particleFloat 10s linear infinite;
+        }
+
+        .particle:nth-child(odd) {
+            background: var(--brand-light);
+            animation-duration: 8s;
+        }
+
+        .particle:nth-child(3n) {
+            background: #ff9f43;
+            animation-duration: 12s;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
         }
 
         .navbar {
@@ -33,6 +73,12 @@
             left: 0;
             right: 0;
             z-index: 1030;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
         }
 
         .navbar-brand {
@@ -41,6 +87,12 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            animation: textGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes textGlow {
+            from { filter: drop-shadow(0 0 5px rgba(106, 17, 203, 0.5)); }
+            to { filter: drop-shadow(0 0 15px rgba(106, 17, 203, 0.8)); }
         }
 
         .hero {
@@ -49,6 +101,12 @@
             overflow: hidden;
             background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
             margin-top: 80px;
+            animation: heroFadeIn 1.5s ease-out;
+        }
+
+        @keyframes heroFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .hero::before {
@@ -60,25 +118,55 @@
             bottom: 0;
             background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
             pointer-events: none;
+            animation: grainMove 20s linear infinite;
+        }
+
+        @keyframes grainMove {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(100px) translateY(100px); }
         }
 
         .feature-icon {
             font-size: 2rem;
             color: var(--brand);
             margin-bottom: 1rem;
+            animation: iconPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .card {
             background: rgba(255,255,255,0.9);
             border-radius: 15px;
             box-shadow: var(--shadow-light);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-medium);
+            transform: translateY(-10px) rotate(1deg);
+            box-shadow: var(--shadow-heavy);
+            box-shadow: var(--glow);
         }
 
         .btn {
@@ -86,28 +174,56 @@
             font-weight: 600;
             transition: all 0.3s ease;
             padding: 0.75rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .btn-primary {
             background: var(--gradient-primary);
             border: none;
             box-shadow: var(--shadow-light);
+            animation: btnGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes btnGlow {
+            from { box-shadow: var(--shadow-light); }
+            to { box-shadow: var(--glow); }
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: var(--shadow-heavy);
         }
 
         .btn-outline-primary {
             border-color: var(--brand);
             color: var(--brand);
+            background: transparent;
         }
 
         .btn-outline-primary:hover {
             background: var(--gradient-primary);
             border-color: transparent;
             color: white;
+            transform: translateY(-2px);
         }
 
         .story-section {
@@ -116,6 +232,12 @@
             border-radius: 20px;
             margin: 2rem 0;
             box-shadow: var(--shadow-light);
+            animation: slideInLeft 1s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         .accent-blob {
@@ -127,6 +249,14 @@
             opacity: 0.3;
             pointer-events: none;
             transform: translateZ(0);
+            animation: blobMorph 8s ease-in-out infinite;
+        }
+
+        @keyframes blobMorph {
+            0%, 100% { border-radius: 50%; transform: scale(1); }
+            25% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; transform: scale(1.1); }
+            50% { border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%; transform: scale(0.9); }
+            75% { border-radius: 30% 70% 70% 30% / 70% 30% 30% 70%; transform: scale(1.05); }
         }
 
         .accent-blob.blob-1 {
@@ -142,9 +272,8 @@
         }
 
         @keyframes float {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0); }
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
         }
 
         .floating {
@@ -153,28 +282,64 @@
 
         .reveal {
             opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
+            transform: translateY(30px) scale(0.9);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         .reveal.visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
         }
 
         footer {
             background: rgba(255,255,255,0.9);
             padding: 2rem 0;
             margin-top: 4rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Typing Animation */
+        .typing {
+            overflow: hidden;
+            border-right: 2px solid var(--brand);
+            white-space: nowrap;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: var(--brand); }
         }
 
         @media (max-width: 768px) {
             .hero { padding: 4rem 0; }
             .accent-blob { display: none; }
+            .particles { display: none; }
         }
     </style>
 </head>
 <body>
+    <div class="particles">
+        <div class="particle" style="left: 10%; width: 4px; height: 4px;"></div>
+        <div class="particle" style="left: 20%; width: 6px; height: 6px;"></div>
+        <div class="particle" style="left: 30%; width: 3px; height: 3px;"></div>
+        <div class="particle" style="left: 40%; width: 5px; height: 5px;"></div>
+        <div class="particle" style="left: 50%; width: 4px; height: 4px;"></div>
+        <div class="particle" style="left: 60%; width: 6px; height: 6px;"></div>
+        <div class="particle" style="left: 70%; width: 3px; height: 3px;"></div>
+        <div class="particle" style="left: 80%; width: 5px; height: 5px;"></div>
+        <div class="particle" style="left: 90%; width: 4px; height: 4px;"></div>
+    </div>
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="#">UserPay</a>
@@ -198,7 +363,7 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold reveal">Send Money with Just a Username</h1>
+                    <h1 class="display-4 fw-bold reveal typing">Send Money with Just a Username</h1>
                     <p class="lead text-muted reveal">Forget complicated account numbers. With UserPay, transferring money is as simple as knowing someone's username. Secure, fast, and effortless.</p>
                     <div class="d-flex gap-3 mt-4">
                         <a class="btn btn-primary btn-lg reveal" href="register.html">Get Started Free</a>
