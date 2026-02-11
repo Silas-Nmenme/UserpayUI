@@ -258,27 +258,12 @@
         </div>
     </section>
 
-    <!-- OTP Confirmation Modal -->
-    <div class="modal fade" id="otp-modal" tabindex="-1" aria-labelledby="otp-modal-label" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="otp-modal-label">Confirm Crypto Send</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>An OTP has been sent to your email. Please enter the 6-digit code to complete the crypto send.</p>
-                    <div class="mb-3">
-                        <label for="modal-otp" class="form-label">OTP Code</label>
-                        <input type="text" class="form-control" id="modal-otp" placeholder="Enter 6-digit OTP" maxlength="6" pattern="\d{6}" required>
-                    </div>
-                    <div id="modal-message" class="text-center" style="display: none;"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-crypto" id="confirm-send-btn">Confirm Send</button>
-                </div>
-            </div>
+
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
         </div>
     </div>
 
@@ -298,7 +283,6 @@
     <script>
         const API_BASE = "https://userpay.vercel.app";
         const TOKEN_KEY = "userpay_token";
-        let currentCryptoTransactionId = null;
 
         function getToken() {
             return localStorage.getItem(TOKEN_KEY);
@@ -311,14 +295,6 @@
 
         function resetForm() {
             document.getElementById('send-crypto-form').reset();
-            document.getElementById('modal-otp').value = '';
-            document.getElementById('modal-message').style.display = 'none';
-            currentCryptoTransactionId = null;
-            // Hide modal if open
-            const otpModal = bootstrap.Modal.getInstance(document.getElementById('otp-modal'));
-            if (otpModal) {
-                otpModal.hide();
-            }
         }
 
         async function loadProfile() {
