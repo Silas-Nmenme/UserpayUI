@@ -153,6 +153,33 @@
             margin-top: 4rem;
         }
 
+        @media (max-width: 768px) {
+            .otp-hero { padding: 4rem 0 2rem; }
+            .display-4 { font-size: 2.5rem; }
+            .lead { font-size: 1rem; }
+            .otp-form { padding: 1.5rem; max-width: 100%; }
+            .floating-coins { display: none; }
+        }
+
+        @media (max-width: 576px) {
+            .otp-hero { padding: 3rem 0 1rem; }
+            .display-4 { font-size: 2rem; }
+            .lead { font-size: 0.9rem; }
+            .otp-form { padding: 1rem; }
+            .transaction-details { padding: 0.75rem; }
+        }
+
+        @media (max-width: 480px) {
+            .otp-hero { padding: 2rem 0 1rem; }
+            .display-4 { font-size: 1.75rem; }
+            .lead { font-size: 0.85rem; }
+            .otp-form { padding: 0.75rem; }
+            .navbar-brand { font-size: 1.25rem; }
+            footer { padding: 1rem 0; }
+            footer .container { flex-direction: column; text-align: center; }
+            .transaction-details { padding: 0.5rem; font-size: 0.9rem; }
+        }
+
         .loading-spinner {
             display: none;
             justify-content: center;
