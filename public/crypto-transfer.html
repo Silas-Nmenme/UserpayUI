@@ -302,7 +302,6 @@
             msgEl.textContent = message;
             msgEl.className = `alert alert-${type}`;
             msgEl.style.display = 'block';
-        
             setTimeout(() => {
                 msgEl.style.display = 'none';
             }, 5000);
@@ -325,8 +324,7 @@
         // ================================
         // SEND CRYPTO → SEND OTP → REDIRECT
         // ================================
-        document.getElementById('send-crypto-form')
-        .addEventListener('submit', async (e) => {
+        document.getElementById('send-crypto-form').addEventListener('submit', async (e) => {
             e.preventDefault();
         
             const token = getToken();
@@ -346,68 +344,47 @@
                 return;
             }
         
-            // Show loading spinner
+            // Show spinner
             document.querySelector('.loading-spinner').style.display = 'flex';
         
             try {
-                const res = await axios.post(
-                    `${API_BASE}/api/crypto/send`,
-                    {
-                        cryptoType: currency,
-                        amount,
-                        toAddress,
-                        memo,
-                        password
-                    },
-                    {
-                        headers: { Authorization: `Bearer ${token}` }
-                    }
-                );
-        
-                const transactionId = res.data.transactionId;
-        
-                if (!transactionId) {
-                    throw new Error("Transaction ID missing from response");
-                }
-        
-                // Save transaction for OTP page
-                localStorage.setItem("crypto_transaction_id", transactionId);
-                localStorage.setItem("crypto_send_details", JSON.stringify({
-                    currency,
+                const res = await axios.post(`${API_BASE}/api/crypto/send`, {
+                    cryptoType: currency,
                     amount,
                     toAddress,
-                    memo
-                }));
+                    memo,
+                    password
+                }, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
         
-                // Hide spinner before redirect
+                const transactionId = res.data.transactionId;
+                if (!transactionId) throw new Error("Transaction ID missing from response");
+        
+                localStorage.setItem("crypto_transaction_id", transactionId);
+                localStorage.setItem("crypto_send_details", JSON.stringify({ currency, amount, toAddress, memo }));
+        
                 document.querySelector('.loading-spinner').style.display = 'none';
-        
-                // Redirect to OTP page
                 window.location.href = "otp.html";
         
             } catch (err) {
                 document.querySelector('.loading-spinner').style.display = 'none';
-    
-                // Handle rate limiting
+        
+                // Rate limit
                 if (err.response?.status === 429) {
                     showMessage("Too many attempts. Please wait before trying again.", "danger");
                     return;
                 }
-    
-                // Handle unauthorized (expired login)
+        
+                // Unauthorized
                 if (err.response?.status === 401) {
                     showMessage("Session expired. Please login again.", "danger");
-                    setTimeout(() => {
-                        window.location.href = "login.html";
-                    }, 2000);
+                    setTimeout(() => window.location.href = "login.html", 2000);
                     return;
                 }
-    
+        
                 // Default error
-                const message =
-                    err.response?.data?.message ||
-                    "Send initiation failed. Please try again.";
-    
+                const message = err.response?.data?.message || "Send initiation failed. Please try again.";
                 showMessage(message, "danger");
             }
         });
@@ -415,9 +392,8 @@
         document.getElementById('logout-btn').addEventListener('click', logout);
         
         // Initialize page
-        window.addEventListener('load', () => {
-            loadProfile();
-        });
-    </script>
+        window.addEventListener('load', () => loadProfile());
+        </script>
+        
     </body>
 </html>
