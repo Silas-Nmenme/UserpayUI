@@ -384,6 +384,16 @@
         UserPayClient.init();
         UserPayClient.refreshUI();
 
+        // Handle logout button
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            UserPayClient.logout();
+        });
+
+        // Handle refresh button
+        document.getElementById('refresh-btn').addEventListener('click', () => {
+            UserPayClient.refreshUI();
+        });
+
         // Handle topup form
         document.getElementById('topup-form')?.addEventListener('submit', async (e) => {
             e.preventDefault();
